@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Duke of DIU — The Digital Brain of Daffodil</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+:root{
+  --blue:#0055A5; --blue-dk:#003366; --blue-mid:#1a6ec7; --blue-lt:rgba(0,85,165,.07);
+  --green:#22963f; --green-dk:#1a7a32; --green-lt:rgba(34,150,63,.08);
+  --gold:#c9a227; --gold-lt:rgba(201,162,39,.10);
+  --bg:#f5f5f7; --surface:#fff; --glass:rgba(255,255,255,.85);
+  --gb:rgba(0,0,0,.07); --gb2:rgba(0,0,0,.04);
+  --t1:#1d1d1f; --t2:#424245; --t3:#6e6e73; --t4:#aeaeb2;
+  --warn:#f59e0b; --danger:#e53935; --info:#0055A5;
+  --s1:0 1px 2px rgba(0,0,0,.04),0 2px 6px rgba(0,0,0,.04);
+  --s2:0 4px 14px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.04);
+  --s3:0 10px 32px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.05);
+  --sb:0 4px 18px rgba(0,85,165,.20);
+  --f:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --r8:8px;--r12:12px;--r16:16px;--r20:20px;--rpill:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--f);font-size:14px;line-height:1.5;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased}
+
+/* ════════════════════════════════════════
+   LOGIN SCREEN
+════════════════════════════════════════ */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(160deg,#001f4d 0%,#003a87 40%,#004f99 70%,#002a5e 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,120,200,.18),transparent),
+             radial-gradient(ellipse 60% 80% at 80% 100%,rgba(34,150,63,.12),transparent);
+  pointer-events:none;
+}
+.login-card{
+  position:relative;z-index:1;
+  background:rgba(255,255,255,.07);
+  backdrop-filter:blur(32px) saturate(180%);
+  -webkit-backdrop-filter:blur(32px) saturate(180%);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:24px;padding:52px 48px;
+  width:420px;max-width:95vw;
+  box-shadow:0 32px 80px rgba(0,0,10,.5),0 0 0 1px rgba(255,255,255,.08);
+  animation:cardIn .6s cubic-bezier(.25,.46,.45,.94);
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+
+.crown-wrap{display:flex;justify-content:center;margin-bottom:24px}
+.crown-svg{filter:drop-shadow(0 4px 20px rgba(201,162,39,.6))}
+
+.login-title{text-align:center;font-size:26px;font-weight:700;color:#fff;letter-spacing:-.4px;margin-bottom:4px}
+.login-tagline{text-align:center;font-size:13.5px;color:rgba(255,255,255,.5);margin-bottom:36px;font-weight:400}
+
+.login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.login-field label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.login-field input{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;padding:12px 16px;
+  font-family:var(--f);font-size:14px;color:#fff;outline:none;
+  transition:border-color .2s,background .2s;
+}
+.login-field input::placeholder{color:rgba(255,255,255,.28)}
+.login-field input:focus{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.14)}
+
+.login-hint{font-size:11.5px;color:rgba(255,255,255,.35);margin-bottom:24px;line-height:1.5}
+.login-hint strong{color:rgba(255,255,255,.55)}
+
+.login-btn{
+  width:100%;padding:13px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--blue-mid),var(--blue));
+  color:#fff;font-family:var(--f);font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 20px rgba(0,85,165,.4);
+  letter-spacing:-.1px;
+}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,85,165,.5)}
+.login-btn:active{transform:none}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.login-err{
+  background:rgba(229,57,53,.15);border:1px solid rgba(229,57,53,.3);
+  border-radius:8px;padding:10px 14px;font-size:13px;color:#ff8a80;
+  margin-bottom:14px;display:none;
+}
+.login-divider{display:flex;align-items:center;gap:10px;margin:20px 0}
+.login-divider span{flex:1;height:1px;background:rgba(255,255,255,.1)}
+.login-divider p{font-size:11px;color:rgba(255,255,255,.25);white-space:nowrap}
+
+.demo-accounts{display:flex;flex-direction:column;gap:6px}
+.demo-acc{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:8px 12px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.demo-acc:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)}
+.demo-acc-email{font-size:12px;color:rgba(255,255,255,.6);font-family:monospace}
+.demo-acc-role{font-size:10px;padding:2px 7px;border-radius:var(--rpill);font-weight:600}
+.role-student{background:rgba(34,150,63,.2);color:#6fcf97}
+.role-parent{background:rgba(201,162,39,.2);color:#f2c94c}
+.role-staff{background:rgba(0,85,165,.25);color:#74b3ff}
+
+/* ════════════════════════════════════════
+   MAIN APP
+════════════════════════════════════════ */
+#app{display:flex;flex-direction:column;height:100%;display:none}
+
+/* TOP BAR */
+.topbar{
+  height:52px;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(200%) blur(20px);
+  -webkit-backdrop-filter:saturate(200%) blur(20px);
+  border-bottom:1px solid var(--gb);
+  display:flex;align-items:center;padding:0 18px;gap:12px;flex-shrink:0;z-index:100;
+}
+.tb-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.tb-crown{width:28px;height:28px;flex-shrink:0}
+.tb-name{font-size:15px;font-weight:700;color:var(--blue-dk);letter-spacing:-.3px}
+.tb-sub{font-size:10px;color:var(--t4);letter-spacing:.2px}
+.tb-div{width:1px;height:20px;background:var(--gb);flex-shrink:0}
+.tb-nav{display:flex;gap:1px;overflow-x:auto}
+.tb-nav::-webkit-scrollbar{display:none}
+.tnl{padding:5px 12px;border-radius:var(--rpill);font-size:12.5px;font-weight:500;color:var(--t3);cursor:pointer;border:none;background:none;transition:all .14s;white-space:nowrap}
+.tnl:hover{background:var(--blue-lt);color:var(--blue)}
+.tnl.active{background:var(--blue-lt);color:var(--blue);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.user-pill{
+  display:flex;align-items:center;gap:7px;padding:4px 12px 4px 4px;
+  background:var(--bg);border:1px solid var(--gb);border-radius:var(--rpill);cursor:pointer;
+  transition:all .15s;
+}
+.user-pill:hover{box-shadow:var(--s1)}
+.user-av{
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue-dk),var(--blue));
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;
+}
+.user-name{font-size:12.5px;font-weight:500;color:var(--t1)}
+.user-role{font-size:10px;color:var(--t4)}
+.online-badge{display:flex;align-items:center;gap:5px;padding:4px 11px;background:var(--green-lt);border:1px solid rgba(34,150,63,.18);border-radius:var(--rpill);font-size:11px;color:var(--green);font-weight:600}
+.online-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+/* NOTIF BELL */
+.notif-btn{position:relative;width:34px;height:34px;border-radius:50%;background:var(--bg);border:1px solid var(--gb);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s}
+.notif-btn:hover{box-shadow:var(--s1)}
+.notif-count{position:absolute;top:-1px;right:-1px;width:16px;height:16px;background:#e53935;border-radius:50%;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+
+/* BODY */
+.app-body{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:240px;background:rgba(255,255,255,.72);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-right:1px solid var(--gb);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;padding-bottom:24px}
+.sidebar::-webkit-scrollbar{width:0}
+.ss{padding:18px 14px 4px;font-size:9.5px;font-weight:700;letter-spacing:1.1px;color:var(--t4);text-transform:uppercase}
+.si{display:flex;align-items:center;gap:9px;margin:1px 8px;padding:8px 10px;border-radius:var(--r12);cursor:pointer;font-size:13px;font-weight:400;color:var(--t2);transition:all .14s;position:relative}
+.si:hover{background:var(--blue-lt);color:var(--t1)}
+.si.active{background:var(--blue-lt);color:var(--blue);font-weight:500}
+.si.active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:3px;border-radius:2px;background:var(--blue)}
+.si-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.si-badge{margin-left:auto;background:var(--blue);color:#fff;border-radius:var(--rpill);padding:1px 6px;font-size:10px;font-weight:700}
+.si-badge.g{background:var(--green)}
+.si-badge.r{background:#e53935}
+
+/* MAIN */
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.panel{display:none;flex:1;flex-direction:column;overflow:hidden;height:100%}
+.panel.active{display:flex}
+
+/* SCROLL AREA */
+.cs{flex:1;overflow-y:auto;padding:28px 32px}
+.cs::-webkit-scrollbar{width:4px}
+.cs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.07);border-radius:2px}
+.ph{margin-bottom:22px}
+.pt{font-size:22px;font-weight:700;letter-spacing:-.4px;color:var(--t1);margin-bottom:4px}
+.ps{font-size:13.5px;color:var(--t3)}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--gb);border-radius:var(--r16);padding:22px;margin-bottom:14px;box-shadow:var(--s1)}
+.card:hover{box-shadow:var(--s2)}
+.ct{font-size:13px;font-weight:600;color:var(--t2);margin-bottom:14px;display:flex;align-items:center;gap:6px;letter-spacing:-.1px}
+
+/* STAT GRID */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.sc{background:var(--surface);border:1px solid var(--gb);border-radius:var(--r16);padding:18px 20px;box-shadow:var(--s1);transition:all .2s;cursor:default}
+.sc:hover{box-shadow:var(--s2);transform:translateY(-1px)}
+.sl{font-size:10px;text-transform:uppercase;letter-spacing:.9px;color:var(--t4);margin-bottom:9px;font-weight:600}
+.sv{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1}
+.sv.b{color:var(--blue)}.sv.g{color:var(--green)}.sv.n{color:var(--blue-dk)}.sv.gold{color:var(--gold)}
+.ss2{font-size:11.5px;color:var(--t4);margin-top:4px}
+
+/* FORMS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:10.5px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px}
+.fld input,.fld select,.fld textarea{background:var(--bg);border:1px solid rgba(0,0,0,.10);border-radius:var(--r8);padding:9px 12px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:all .15s;-webkit-appearance:none}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:rgba(0,85,165,.4);background:var(--surface);box-shadow:0 0 0 3px rgba(0,85,165,.07)}
+.fld select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236e6e73' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+
+/* BUTTONS */
+.btn{padding:9px 20px;border-radius:var(--rpill);border:none;font-family:var(--f);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .18s;letter-spacing:-.1px}
+.btn-p{background:linear-gradient(135deg,var(--blue-mid),var(--blue));color:#fff;box-shadow:0 2px 10px rgba(0,85,165,.22)}
+.btn-p:hover{opacity:.88;transform:translateY(-1px);box-shadow:var(--sb)}
+.btn-o{background:var(--surface);border:1px solid rgba(0,0,0,.12);color:var(--t2);box-shadow:var(--s1)}
+.btn-o:hover{border-color:rgba(0,85,165,.3);color:var(--blue);background:var(--blue-lt)}
+.btn-g{background:linear-gradient(135deg,#2db554,var(--green));color:#fff;box-shadow:0 2px 10px rgba(34,150,63,.2)}
+.btn-g:hover{opacity:.88;transform:translateY(-1px)}
+.btn-gold{background:linear-gradient(135deg,#e0b830,var(--gold));color:#fff}
+.btn-sm{padding:6px 14px;font-size:12px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:var(--rpill);font-size:11px;font-weight:600}
+.bb{background:var(--blue-lt);color:var(--blue)}
+.bg{background:var(--green-lt);color:var(--green)}
+.by{background:rgba(245,158,11,.09);color:#b45309}
+.br{background:rgba(229,57,53,.09);color:#c62828}
+.bn{background:rgba(0,51,102,.08);color:var(--blue-dk)}
+.bgold{background:var(--gold-lt);color:#92680d}
+
+/* RESULT BOX */
+.rb{border-radius:var(--r16);padding:18px 20px;margin-top:14px;border:1px solid}
+.rb.ok{background:var(--green-lt);border-color:rgba(34,150,63,.2)}
+.rb.warn{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.22)}
+.rb.err{background:rgba(229,57,53,.06);border-color:rgba(229,57,53,.18)}
+.rb.info{background:var(--blue-lt);border-color:rgba(0,85,165,.18)}
+.rb.gold{background:var(--gold-lt);border-color:rgba(201,162,39,.25)}
+
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{text-align:left;padding:8px 14px;border-bottom:1px solid var(--gb);font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--t4);font-weight:700;background:var(--bg)}
+.dt td{padding:10px 14px;border-bottom:1px solid var(--gb);vertical-align:middle}
+.dt tr:hover td{background:rgba(0,85,165,.025)}
+.dt tr:last-child td{border-bottom:none}
+
+/* CHIP GRID */
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:var(--surface);border:1px solid var(--gb);color:var(--t2);padding:7px 15px;border-radius:var(--rpill);font-size:13px;font-weight:500;cursor:pointer;transition:all .16s;box-shadow:var(--s1)}
+.chip:hover{background:var(--blue-lt);border-color:rgba(0,85,165,.22);color:var(--blue);transform:translateY(-1px);box-shadow:var(--s2)}
+
+/* NOTIFICATION PANEL */
+.notif-panel{position:absolute;top:56px;right:14px;width:360px;background:var(--surface);border:1px solid var(--gb);border-radius:var(--r16);box-shadow:var(--s3);z-index:500;display:none;animation:fadeUp .2s ease}
+.notif-panel.open{display:block}
+.np-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--gb)}
+.np-title{font-size:14px;font-weight:600;color:var(--t1)}
+.np-mark{font-size:12px;color:var(--blue);cursor:pointer;font-weight:500}
+.np-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--gb);cursor:pointer;transition:background .14s}
+.np-item:hover{background:var(--bg)}
+.np-item:last-child{border-bottom:none}
+.np-icon{font-size:20px;flex-shrink:0;width:36px;height:36px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+.np-body{flex:1}
+.np-msg{font-size:13px;color:var(--t1);line-height:1.4}
+.np-time{font-size:11px;color:var(--t4);margin-top:2px}
+.np-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:5px}
+
+/* CONTACT CARD */
+.contact-card{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg);border-radius:var(--r12);border:1px solid var(--gb);margin-bottom:10px;transition:all .15s}
+.contact-card:hover{box-shadow:var(--s2);background:var(--surface)}
+.contact-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.contact-info{flex:1}
+.contact-name{font-size:13.5px;font-weight:600;color:var(--t1)}
+.contact-role{font-size:12px;color:var(--t3)}
+.contact-actions{display:flex;gap:6px}
+
+/* JOB CARD */
+.job-card{background:var(--surface);border:1px solid var(--gb);border-radius:var(--r12);padding:16px;margin-bottom:10px;transition:all .2s;cursor:pointer;box-shadow:var(--s1)}
+.job-card:hover{box-shadow:var(--s2);transform:translateY(-1px)}
+.job-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px}
+.job-company{font-size:12.5px;color:var(--t3);margin-bottom:8px}
+.job-meta{display:flex;gap:8px;flex-wrap:wrap}
+
+/* EVENT CARD */
+.ev-card{background:var(--surface);border:1px solid var(--gb);border-left:3px solid var(--blue);border-radius:var(--r12);padding:14px 16px;margin-bottom:10px;box-shadow:var(--s1)}
+.ev-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px}
+.ev-meta{font-size:12px;color:var(--t3)}
+
+/* DEPT GRID */
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(256px,1fr));gap:12px}
+.dc{background:var(--surface);border:1px solid var(--gb);border-radius:var(--r16);padding:18px;cursor:pointer;transition:all .2s;box-shadow:var(--s1);position:relative;overflow:hidden}
+.dc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-mid));border-radius:var(--r16) var(--r16) 0 0}
+.dc:hover{transform:translateY(-2px);box-shadow:var(--s3)}
+.dc:hover::after{background:linear-gradient(90deg,var(--green),#2db554)}
+.dc-id{font-size:9.5px;font-weight:700;letter-spacing:1.2px;color:var(--blue);margin-bottom:5px;text-transform:uppercase}
+.dc-name{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px;letter-spacing:-.1px}
+.dc-head{font-size:11.5px;color:var(--t4);margin-bottom:9px}
+.dc-desc{font-size:12.5px;color:var(--t3);line-height:1.5;margin-bottom:12px}
+.dc-meta{display:flex;gap:12px;flex-wrap:wrap}
+.dc-mi{font-size:11px;color:var(--t4)}
+.dc-mi strong{display:block;font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.2px}
+
+/* CHAT */
+.chat-msgs{flex:1;overflow-y:auto;padding:24px 0 8px;display:flex;flex-direction:column}
+.chat-msgs::-webkit-scrollbar{width:4px}
+.chat-msgs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.06);border-radius:2px}
+
+.welcome-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 24px;text-align:center;animation:fadeUp .4s ease}
+.wc-crown{margin-bottom:16px;filter:drop-shadow(0 8px 24px rgba(201,162,39,.4))}
+.wt{font-size:26px;font-weight:700;letter-spacing:-.5px;color:var(--t1);margin-bottom:6px}
+.ws{font-size:15px;color:var(--t3);max-width:440px;line-height:1.6}
+.wc-user{display:inline-flex;align-items:center;gap:6px;background:var(--gold-lt);border:1px solid rgba(201,162,39,.2);border-radius:var(--rpill);padding:4px 12px;font-size:13px;color:var(--gold);font-weight:600;margin:12px 0 20px}
+
+.msg-row{display:flex;padding:5px 24px;gap:10px;max-width:860px;width:100%;margin:0 auto;animation:fadeUp .22s cubic-bezier(.25,.46,.45,.94)}
+.msg-row.ur{flex-direction:row-reverse}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.mav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.mav.da{background:linear-gradient(135deg,var(--blue-dk),var(--blue));color:#fff}
+.mav.ua{background:linear-gradient(135deg,#424245,#1d1d1f);color:#fff;font-size:13px}
+.mb{max-width:76%;padding:11px 15px;border-radius:var(--r16);font-size:14px;line-height:1.65}
+.mb.db{background:var(--surface);border:1px solid var(--gb);border-top-left-radius:4px;color:var(--t1);box-shadow:var(--s1)}
+.mb.ub{background:linear-gradient(135deg,var(--blue-mid),var(--blue));color:#fff;border-top-right-radius:4px;box-shadow:var(--sb)}
+.mb strong{font-weight:600}
+.mb.ub strong{color:rgba(255,255,255,.95)}
+.mb a{color:var(--blue)}
+.mb.ub a{color:rgba(255,255,255,.85)}
+.mb table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;border-radius:var(--r8);overflow:hidden}
+.mb th{text-align:left;padding:7px 11px;background:var(--blue-lt);font-weight:600;font-size:11.5px;color:var(--blue);border-bottom:1px solid var(--gb)}
+.mb td{padding:7px 11px;border-bottom:1px solid var(--gb)}
+.mb tr:last-child td{border-bottom:none}
+.itag{display:inline-block;font-size:9px;padding:2px 7px;border-radius:var(--rpill);margin-bottom:5px;background:var(--blue-lt);color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+
+.tdots{display:flex;gap:4px;padding:3px 0;align-items:center}
+.td{width:6px;height:6px;border-radius:50%;background:var(--t4);animation:td 1.4s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.15s}.td:nth-child(3){animation-delay:.3s}
+@keyframes td{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:.9}}
+
+.inputbar{padding:10px 20px 14px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--gb)}
+.input-wrap{max-width:860px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;background:var(--surface);border:1px solid rgba(0,0,0,.10);border-radius:var(--r20);padding:10px 10px 10px 16px;box-shadow:var(--s2);transition:all .2s}
+.input-wrap:focus-within{border-color:rgba(0,85,165,.35);box-shadow:0 0 0 3px rgba(0,85,165,.07),var(--s2)}
+.ci{flex:1;border:none;outline:none;font-family:var(--f);font-size:14px;color:var(--t1);resize:none;min-height:22px;max-height:140px;background:transparent;line-height:1.55}
+.ci::placeholder{color:var(--t4)}
+.sbtn{width:34px;height:34px;background:linear-gradient(135deg,var(--blue-mid),var(--blue));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;box-shadow:0 2px 8px rgba(0,85,165,.28)}
+.sbtn:hover{transform:scale(1.08)}
+.sbtn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.sbtn svg{width:15px;height:15px;fill:#fff}
+.ihint{text-align:center;font-size:11px;color:var(--t4);margin-top:6px;max-width:860px;margin-left:auto;margin-right:auto}
+.ihint a{color:var(--blue);text-decoration:none}
+
+/* WARN BANNER */
+.api-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);border-radius:var(--r12);padding:12px 16px;font-size:13px;color:#92400e;display:flex;align-items:flex-start;gap:10px;margin-bottom:16px}
+
+/* SETTINGS */
+.sr{display:flex;gap:10px;align-items:center;margin-top:10px}
+.sr input{flex:1;background:var(--bg);border:1px solid rgba(0,0,0,.1);border-radius:var(--r8);padding:9px 12px;font-family:var(--f);font-size:14px;color:var(--t1);outline:none;transition:all .15s}
+.sr input:focus{border-color:rgba(0,85,165,.4);box-shadow:0 0 0 3px rgba(0,85,165,.07)}
+
+/* PROGRESS BAR */
+.prog-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.prog-blue{background:linear-gradient(90deg,var(--blue-mid),var(--blue))}
+.prog-green{background:linear-gradient(90deg,#2db554,var(--green))}
+.prog-gold{background:linear-gradient(90deg,#e0b830,var(--gold))}
+
+/* LOST FOUND */
+.lf-card{display:flex;gap:12px;padding:14px;background:var(--bg);border-radius:var(--r12);border:1px solid var(--gb);margin-bottom:8px;cursor:pointer;transition:all .15s}
+.lf-card:hover{background:var(--surface);box-shadow:var(--s1)}
+.lf-icon{font-size:24px;width:40px;text-align:center}
+.lf-body{flex:1}
+.lf-title{font-size:13.5px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.lf-meta{font-size:12px;color:var(--t3)}
+
+/* HALL CARD */
+.hall-card{background:var(--surface);border:1px solid var(--gb);border-radius:var(--r16);padding:18px;margin-bottom:12px;box-shadow:var(--s1)}
+.hall-name{font-size:15px;font-weight:600;color:var(--t1);margin-bottom:4px}
+.hall-meta{font-size:12.5px;color:var(--t3);margin-bottom:10px}
+
+@media(max-width:720px){
+  .sidebar{display:none}
+  .sg{grid-template-columns:1fr 1fr}
+  .fg{grid-template-columns:1fr}
+  .dg{grid-template-columns:1fr}
+  .cs{padding:16px}
+  .msg-row{padding:5px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="crown-wrap">
+      <svg class="crown-svg" width="72" height="56" viewBox="0 0 72 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M36 4L48 22L64 10L58 44H14L8 10L24 22L36 4Z" fill="url(#cg)" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+        <rect x="14" y="46" width="44" height="6" rx="3" fill="url(#cg2)"/>
+        <circle cx="36" cy="4" r="4" fill="#fff" opacity=".9"/>
+        <circle cx="64" cy="10" r="3.5" fill="#fff" opacity=".9"/>
+        <circle cx="8" cy="10" r="3.5" fill="#fff" opacity=".9"/>
+        <defs>
+          <linearGradient id="cg" x1="8" y1="4" x2="64" y2="44" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#f0d060"/><stop offset="1" stop-color="#c9a227"/>
+          </linearGradient>
+          <linearGradient id="cg2" x1="14" y1="46" x2="58" y2="52" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#e0b830"/><stop offset="1" stop-color="#a07818"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <h1 class="login-title">Duke of DIU</h1>
+    <p class="login-tagline">The Digital Brain of Daffodil International University</p>
+    <div class="login-err" id="loginErr">Invalid credentials. Please try again.</div>
+    <div class="login-field">
+      <label>DIU Student / Staff Email</label>
+      <input type="email" id="loginEmail" placeholder="yourname@diu.edu.bd" autocomplete="email"/>
+    </div>
+    <div class="login-field">
+      <label>Password / Portal PIN</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <p class="login-hint">Use your <strong>@diu.edu.bd</strong> institutional email. Demo accounts below.</p>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In to Duke ✦</button>
+    <div class="login-divider"><span></span><p>Try a demo account</p><span></span></div>
+    <div class="demo-accounts">
+      <div class="demo-acc" onclick="fillDemo('tanvir.ahmed@diu.edu.bd','1234','student')">
+        <span class="demo-acc-email">tanvir.ahmed@diu.edu.bd</span>
+        <span class="demo-acc-role role-student">Student</span>
+      </div>
+      <div class="demo-acc" onclick="fillDemo('parent.rahela@gmail.com','1234','parent')">
+        <span class="demo-acc-email">parent.rahela@gmail.com</span>
+        <span class="demo-acc-role role-parent">Parent</span>
+      </div>
+      <div class="demo-acc" onclick="fillDemo('proctor@diu.edu.bd','1234','staff')">
+        <span class="demo-acc-email">proctor@diu.edu.bd</span>
+        <span class="demo-acc-role role-staff">Staff</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app">
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <a class="tb-logo" href="#">
+    <svg class="tb-crown" width="28" height="22" viewBox="0 0 72 56" fill="none">
+      <path d="M36 4L48 22L64 10L58 44H14L8 10L24 22L36 4Z" fill="url(#cg3)" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
+      <rect x="14" y="46" width="44" height="6" rx="3" fill="url(#cg4)"/>
+      <circle cx="36" cy="4" r="4" fill="#f0d060" opacity=".9"/>
+      <circle cx="64" cy="10" r="3.5" fill="#f0d060" opacity=".9"/>
+      <circle cx="8" cy="10" r="3.5" fill="#f0d060" opacity=".9"/>
+      <defs>
+        <linearGradient id="cg3" x1="8" y1="4" x2="64" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#f0d060"/><stop offset="1" stop-color="#c9a227"/></linearGradient>
+        <linearGradient id="cg4" x1="14" y1="46" x2="58" y2="52" gradientUnits="userSpaceOnUse"><stop stop-color="#e0b830"/><stop offset="1" stop-color="#a07818"/></linearGradient>
+      </defs>
+    </svg>
+    <div><div class="tb-name">Duke of DIU</div><div class="tb-sub">Digital Brain · Daffodil International University</div></div>
+  </a>
+  <div class="tb-div"></div>
+  <div class="tb-nav">
+    <button class="tnl active" onclick="switchTab(this,'chat')">AI Chat</button>
+    <button class="tnl" onclick="switchTab(this,'dashboard')">Dashboard</button>
+    <button class="tnl" onclick="switchTab(this,'admission')">Admission</button>
+    <button class="tnl" onclick="switchTab(this,'departments')">Departments</button>
+    <button class="tnl" onclick="switchTab(this,'careers')">Careers</button>
+    <button class="tnl" onclick="switchTab(this,'events')">Events</button>
+  </div>
+  <div class="tb-right">
+    <div class="notif-btn" onclick="toggleNotif()" id="notifBtn">🔔<span class="notif-count" id="notifCount">4</span></div>
+    <span class="online-badge"><span class="online-dot"></span>Duke Live</span>
+    <div class="user-pill" onclick="switchSide(null,'settings')">
+      <div class="user-av" id="userAv">T</div>
+      <div><div class="user-name" id="userName">Tanvir Ahmed</div><div class="user-role" id="userRole">Student · CSE</div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="np-head"><span class="np-title">Notifications</span><span class="np-mark" onclick="markAllRead()">Mark all read</span></div>
+  <div id="notifList"></div>
+</div>
+
+<div class="app-body">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="ss">Main</div>
+  <div class="si active" onclick="switchSide(this,'chat')"><span class="si-icon">💬</span>Ask Duke</div>
+  <div class="si" onclick="switchSide(this,'dashboard')"><span class="si-icon">⬡</span>Dashboard</div>
+
+  <div class="ss">Admissions</div>
+  <div class="si" onclick="switchSide(this,'eligibility')"><span class="si-icon">✅</span>Eligibility Check</div>
+  <div class="si" onclick="switchSide(this,'apply')"><span class="si-icon">📝</span>Apply Now</div>
+  <div class="si" onclick="switchSide(this,'applications')"><span class="si-icon">📋</span>Applications<span class="si-badge" id="badge-pending">2</span></div>
+  <div class="si" onclick="switchSide(this,'schedules')"><span class="si-icon">📅</span>Interviews<span class="si-badge g" id="badge-int">1</span></div>
+
+  <div class="ss">Student Life</div>
+  <div class="si" onclick="switchSide(this,'portal')"><span class="si-icon">🎓</span>Student Portal</div>
+  <div class="si" onclick="switchSide(this,'hall')"><span class="si-icon">🏠</span>Hall / Dorm</div>
+  <div class="si" onclick="switchSide(this,'events')"><span class="si-icon">📣</span>Events &amp; Programs<span class="si-badge r">3</span></div>
+  <div class="si" onclick="switchSide(this,'lost')"><span class="si-icon">🔍</span>Lost &amp; Found</div>
+
+  <div class="ss">Support</div>
+  <div class="si" onclick="switchSide(this,'accounts')"><span class="si-icon">💳</span>Accounts &amp; Fees</div>
+  <div class="si" onclick="switchSide(this,'contacts')"><span class="si-icon">📞</span>Key Contacts</div>
+  <div class="si" onclick="switchSide(this,'scholarship')"><span class="si-icon">🏅</span>Scholarship</div>
+  <div class="si" onclick="switchSide(this,'complaints')"><span class="si-icon">📢</span>Complaints</div>
+
+  <div class="ss">Career &amp; Global</div>
+  <div class="si" onclick="switchSide(this,'careers')"><span class="si-icon">💼</span>Jobs &amp; Careers<span class="si-badge g">5</span></div>
+  <div class="si" onclick="switchSide(this,'exchange')"><span class="si-icon">🌍</span>Exchange Programs</div>
+  <div class="si" onclick="switchSide(this,'departments')"><span class="si-icon">🏫</span>Departments</div>
+
+  <div class="ss">System</div>
+  <div class="si" onclick="switchSide(this,'settings')"><span class="si-icon">⚙️</span>Settings</div>
+</aside>
+
+<div class="main">
+
+<!-- ═══ CHAT ═══ -->
+<div id="panel-chat" class="panel active">
+  <div class="chat-msgs" id="chatMsgs">
+    <div class="welcome-wrap" id="chatWelcome">
+      <svg class="wc-crown" width="64" height="50" viewBox="0 0 72 56" fill="none">
+        <path d="M36 4L48 22L64 10L58 44H14L8 10L24 22L36 4Z" fill="url(#wcg)" stroke="rgba(0,0,0,.05)" stroke-width="1"/>
+        <rect x="14" y="46" width="44" height="6" rx="3" fill="#c9a227"/>
+        <circle cx="36" cy="4" r="4" fill="#f0d060"/><circle cx="64" cy="10" r="3.5" fill="#f0d060"/><circle cx="8" cy="10" r="3.5" fill="#f0d060"/>
+        <defs><linearGradient id="wcg" x1="8" y1="4" x2="64" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#f0d060"/><stop offset="1" stop-color="#c9a227"/></linearGradient></defs>
+      </svg>
+      <h2 class="wt">Hello, I'm Duke 👑</h2>
+      <div class="wc-user" id="welcomeUser">✦ Welcome, Student</div>
+      <p class="ws">Your personal digital brain for Daffodil International University. I handle admissions, fees, hall queries, careers, events, scholarships, and everything in between.</p>
+      <div class="chip-grid" id="welcomeChips"></div>
+    </div>
+  </div>
+  <div class="inputbar">
+    <div class="input-wrap">
+      <textarea class="ci" id="chatInput" placeholder="Ask Duke anything about DIU…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+      <button class="sbtn" id="sendBtn" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+    <div class="ihint">Duke uses DIU's live database. For official info: <a href="https://daffodilvarsity.edu.bd" target="_blank">daffodilvarsity.edu.bd</a></div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="panel-dashboard" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Dashboard</div><div class="ps">Welcome back — here's your DIU overview</div></div>
+    <div id="api-warn-box" style="display:none" class="api-warn">⚠️ <span>Gemini key not set. Duke is in demo mode. Go to <strong>Settings</strong> to add your key.</span></div>
+    <div class="sg">
+      <div class="sc"><div class="sl">Students</div><div class="sv b">21,000+</div><div class="ss2">23 departments</div></div>
+      <div class="sc"><div class="sl">Pending Applications</div><div class="sv n" id="stat-pending">2</div><div class="ss2">Awaiting review</div></div>
+      <div class="sc"><div class="sl">Scheduled Interviews</div><div class="sv g" id="stat-int">1</div><div class="ss2">This cycle</div></div>
+      <div class="sc"><div class="sl">QS World Rank</div><div class="sv b">1001–1200</div><div class="ss2">QS 2026</div></div>
+    </div>
+    <div class="sg">
+      <div class="sc"><div class="sl">New Jobs Posted</div><div class="sv g">5</div><div class="ss2">This week</div></div>
+      <div class="sc"><div class="sl">Exchange Programs</div><div class="sv b">3</div><div class="ss2">Open applications</div></div>
+      <div class="sc"><div class="sl">Hall Complaints</div><div class="sv n" id="stat-complaints">2</div><div class="ss2">Under review</div></div>
+      <div class="sc"><div class="sl">Lost &amp; Found</div><div class="sv gold">7</div><div class="ss2">Active entries</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">📋 Admission Policy Quick Reference</div>
+      <table class="dt">
+        <thead><tr><th>Combined GPA</th><th>Admission Path</th><th>Scholarship</th></tr></thead>
+        <tbody>
+          <tr><td><strong>= 10.00</strong> (Golden)</td><td><span class="badge bg">Direct Admission</span></td><td><span class="badge bg">100% Waiver</span></td></tr>
+          <tr><td><strong>9.00 – 9.99</strong></td><td><span class="badge by">Admission Test</span></td><td><span class="badge by">50% Waiver</span></td></tr>
+          <tr><td><strong>Below 9.00</strong></td><td><span class="badge br">Test + Interview</span></td><td><span class="badge bn">Case by case</span></td></tr>
+          <tr><td><strong>Gap &gt; 1 year</strong></td><td><span class="badge br">Mandatory Interview</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card"><div class="ct">🏫 About DIU</div>
+      <p style="font-size:13.5px;color:var(--t3);line-height:1.7">Daffodil International University, established <strong>24 January 2002</strong>, is Bangladesh's largest private university campus at <strong>360 acres</strong> in Daffodil Smart City, Savar. With <strong>21,000+ students</strong>, 650 faculty, 23 departments and QS rank <strong>1001–1200</strong>, DIU is a leading research and innovation hub.</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+        <span class="badge bb">UGC Approved</span><span class="badge bb">ISO 9001:2015</span><span class="badge bg">QS Ranked</span><span class="badge bb">UN Green Campus</span><span class="badge bgold">360-acre Smart City</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STUDENT PORTAL ═══ -->
+<div id="panel-portal" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Student Portal</div><div class="ps">Your academic profile at a glance</div></div>
+    <div id="portal-content"></div>
+  </div>
+</div>
+
+<!-- ═══ ELIGIBILITY ═══ -->
+<div id="panel-eligibility" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Eligibility Checker</div><div class="ps">Check your admission status instantly</div></div>
+    <div class="card">
+      <div class="ct">📊 Your Academic Details</div>
+      <div class="fg">
+        <div class="fld"><label>SSC GPA (out of 5)</label><input type="number" id="el-ssc" min="0" max="5" step="0.01" placeholder="e.g. 4.50"></div>
+        <div class="fld"><label>HSC GPA (out of 5)</label><input type="number" id="el-hsc" min="0" max="5" step="0.01" placeholder="e.g. 4.70"></div>
+        <div class="fld"><label>Study Gap (years)</label><input type="number" id="el-gap" min="0" max="10" value="0"></div>
+        <div class="fld"><label>Desired Department</label>
+          <select id="el-dept">
+            <option value="CSE">CSE — Computer Science & Engineering</option>
+            <option value="SWE">SWE — Software Engineering</option>
+            <option value="EEE">EEE — Electrical & Electronic Engineering</option>
+            <option value="ICE">ICE — Information & Communication Eng.</option>
+            <option value="TE">TE — Textile Engineering</option>
+            <option value="CE">CE — Civil Engineering</option>
+            <option value="BBA">BBA — Business Administration</option>
+            <option value="ENTREP">ENTREP — Entrepreneurship</option>
+            <option value="ENG">ENG — English</option>
+            <option value="LAW">LAW — Law</option>
+            <option value="PHARMACY">PHARMACY — Pharmacy</option>
+            <option value="PH">PH — Public Health</option>
+          </select>
+        </div>
+        <div class="fld"><label>Background</label>
+          <select id="el-bg"><option value="science">Science</option><option value="commerce">Commerce</option><option value="humanities">Humanities</option></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-p" onclick="checkElig()">Check Eligibility →</button>
+        <button class="btn btn-o" onclick="askEligibility()">Ask Duke AI →</button>
+      </div>
+    </div>
+    <div id="el-result"></div>
+  </div>
+</div>
+
+<!-- ═══ APPLY ═══ -->
+<div id="panel-apply" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Apply for Admission</div><div class="ps">Duke AI completes and evaluates your application</div></div>
+    <div class="card"><div class="ct">👤 Personal Information</div>
+      <div class="fg">
+        <div class="fld"><label>Full Name</label><input type="text" id="ap-name" placeholder="Your full name"></div>
+        <div class="fld"><label>Email</label><input type="email" id="ap-email" placeholder="email@example.com"></div>
+        <div class="fld"><label>Phone</label><input type="text" id="ap-phone" placeholder="01XXXXXXXXX"></div>
+        <div class="fld"><label>Date of Birth</label><input type="date" id="ap-dob"></div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">🎓 Academic Information</div>
+      <div class="fg">
+        <div class="fld"><label>SSC GPA</label><input type="number" id="ap-ssc" min="0" max="5" step="0.01"></div>
+        <div class="fld"><label>HSC GPA</label><input type="number" id="ap-hsc" min="0" max="5" step="0.01"></div>
+        <div class="fld"><label>SSC Passing Year</label><input type="number" id="ap-sscy" placeholder="2021"></div>
+        <div class="fld"><label>HSC Passing Year</label><input type="number" id="ap-hscy" placeholder="2023"></div>
+        <div class="fld"><label>Study Gap (years)</label><input type="number" id="ap-gap" value="0" min="0"></div>
+        <div class="fld"><label>Desired Department</label>
+          <select id="ap-dept">
+            <option value="CSE">CSE</option><option value="SWE">SWE</option><option value="EEE">EEE</option>
+            <option value="BBA">BBA</option><option value="LAW">LAW</option><option value="PHARMACY">PHARMACY</option>
+            <option value="ICE">ICE</option><option value="TE">TE</option><option value="CE">CE</option>
+            <option value="ENTREP">ENTREP</option><option value="ENG">ENG</option><option value="PH">PH</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">📄 Documents</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="ssc_cert" class="doc-cb"> SSC Certificate</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="hsc_cert" class="doc-cb"> HSC Certificate</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="nid" class="doc-cb"> National ID</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="birth_cert" class="doc-cb"> Birth Certificate</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" value="passport_photo" class="doc-cb"> Passport Photo</label>
+      </div>
+    </div>
+    <button class="btn btn-p" onclick="submitApp()">Submit Application via Duke →</button>
+    <div id="ap-result" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<!-- ═══ APPLICATIONS ═══ -->
+<div id="panel-applications" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Applications</div><div class="ps">All DIU admission applications</div></div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="dt"><thead><tr><th>ID</th><th>Name</th><th>Dept</th><th>Combined GPA</th><th>Status</th><th>Applied</th><th>Docs</th></tr></thead>
+      <tbody id="apps-body"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCHEDULES ═══ -->
+<div id="panel-schedules" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Interview Schedules</div><div class="ps">Admission interviews managed by Duke</div></div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="dt"><thead><tr><th>ID</th><th>Applicant</th><th>Dept</th><th>Interviewer</th><th>Date & Time</th><th>Venue</th><th>Status</th></tr></thead>
+      <tbody id="sched-body"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HALL / DORM ═══ -->
+<div id="panel-hall" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Hall & Dormitory</div><div class="ps">Residential services, queries, and complaints</div></div>
+    <div class="hall-card">
+      <div class="hall-name">🏠 Daffodil Smart City Residential Halls</div>
+      <div class="hall-meta">5 residential halls · Male & Female · Daffodil Smart City, Ashulia</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="badge bb">Hall A – Male</span><span class="badge bb">Hall B – Male</span><span class="badge bg">Hall C – Female</span><span class="badge bg">Hall D – Female</span><span class="badge bn">Hall E – Mixed PG</span>
+      </div>
+      <div class="fg">
+        <div class="fld"><label>Your Hall</label><select id="hall-sel"><option>Hall A (Male)</option><option>Hall B (Male)</option><option>Hall C (Female)</option><option>Hall D (Female)</option><option>Hall E (PG)</option></select></div>
+        <div class="fld"><label>Room Number</label><input type="text" placeholder="e.g. A-204"></div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">🛠 Submit Hall Complaint / Query</div>
+      <div class="fg">
+        <div class="fld"><label>Issue Type</label>
+          <select id="hall-issue"><option>Maintenance / Repair</option><option>Cleanliness</option><option>Roommate Conflict</option><option>Security Concern</option><option>Wi-Fi / Electricity</option><option>Meal / Cafeteria</option><option>Other</option></select>
+        </div>
+        <div class="fld"><label>Priority</label><select id="hall-priority"><option>Normal</option><option>Urgent</option><option>Emergency</option></select></div>
+      </div>
+      <div class="fld" style="margin-top:10px"><label>Description</label><textarea id="hall-desc" placeholder="Describe your issue in detail…" style="height:80px;resize:vertical"></textarea></div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-p" onclick="submitHallComplaint()">Submit to Duke →</button>
+        <button class="btn btn-o" onclick="quickSend('I have a '+document.getElementById('hall-issue').value+' issue in my hall. Please help.')">Ask Duke AI →</button>
+      </div>
+      <div id="hall-result" style="margin-top:12px"></div>
+    </div>
+    <div class="card"><div class="ct">📞 Hall Management Contacts</div>
+      <div id="hall-contacts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EVENTS ═══ -->
+<div id="panel-events" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Events & Programs</div><div class="ps">Upcoming DIU events — Duke notifies you automatically</div></div>
+    <div class="card"><div class="ct">🔔 Duke's Smart Notifications</div>
+      <p style="font-size:13.5px;color:var(--t3);line-height:1.6;margin-bottom:12px">Duke monitors all upcoming programs and events. Enable smart notifications and Duke will alert you about events relevant to your department, semester, and interests — and can register you automatically.</p>
+      <button class="btn btn-g" onclick="alert('Smart notifications enabled! Duke will notify you of all upcoming DIU events.')">Enable Smart Alerts</button>
+    </div>
+    <div id="events-list"></div>
+  </div>
+</div>
+
+<!-- ═══ LOST & FOUND ═══ -->
+<div id="panel-lost" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Lost & Found</div><div class="ps">Duke connects you with officials and other students</div></div>
+    <div class="card"><div class="ct">➕ Report Lost or Found Item</div>
+      <div class="fg">
+        <div class="fld"><label>Type</label><select id="lf-type"><option>Lost</option><option>Found</option></select></div>
+        <div class="fld"><label>Category</label><select id="lf-cat"><option>Electronics</option><option>ID Card / Documents</option><option>Keys</option><option>Clothing / Bag</option><option>Books / Notes</option><option>Other</option></select></div>
+        <div class="fld"><label>Item Description</label><input id="lf-desc" placeholder="e.g. Black iPhone 15, cracked case"></div>
+        <div class="fld"><label>Location Found / Lost</label><input id="lf-loc" placeholder="e.g. Library 2nd floor"></div>
+      </div>
+      <button class="btn btn-p" style="margin-top:12px" onclick="submitLostFound()">Report to Duke →</button>
+    </div>
+    <div id="lf-list"></div>
+  </div>
+</div>
+
+<!-- ═══ ACCOUNTS ═══ -->
+<div id="panel-accounts" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Accounts & Fees</div><div class="ps">Payment queries, dues, receipts — Duke connects you to the accounts department</div></div>
+    <div id="accounts-content"></div>
+    <div class="card"><div class="ct">💬 Raise a Payment Issue</div>
+      <div class="fg">
+        <div class="fld"><label>Issue Type</label><select id="pay-issue"><option>Fee Payment Failed</option><option>Waiver Not Applied</option><option>Scholarship Discrepancy</option><option>Duplicate Payment</option><option>Receipt Not Received</option><option>Instalment Request</option><option>Other</option></select></div>
+        <div class="fld"><label>Amount (BDT)</label><input type="number" id="pay-amount" placeholder="e.g. 18000"></div>
+        <div class="fld" style="grid-column:1/-1"><label>Details</label><textarea id="pay-details" style="height:70px;resize:vertical" placeholder="Describe the payment issue…"></textarea></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-p" onclick="submitPayIssue()">Submit to Accounts Dept →</button>
+        <button class="btn btn-o" onclick="quickSend('I have a payment issue: '+document.getElementById('pay-issue').value+'. Please help me resolve it.')">Ask Duke AI →</button>
+      </div>
+      <div id="pay-result" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ KEY CONTACTS ═══ -->
+<div id="panel-contacts" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Key Contacts</div><div class="ps">Proctors, committees, and officials — reach anyone instantly via Duke</div></div>
+    <div id="contacts-list"></div>
+  </div>
+</div>
+
+<!-- ═══ SCHOLARSHIP ═══ -->
+<div id="panel-scholarship" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Scholarship & Waivers</div><div class="ps">Duke checks your eligibility and helps you apply</div></div>
+    <div id="scholarship-content"></div>
+  </div>
+</div>
+
+<!-- ═══ COMPLAINTS ═══ -->
+<div id="panel-complaints" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Complaints & Grievances</div><div class="ps">Submit to the appropriate committee — Duke routes it automatically</div></div>
+    <div class="card"><div class="ct">📢 New Complaint</div>
+      <div class="fg">
+        <div class="fld"><label>Category</label>
+          <select id="comp-cat">
+            <option>Academic / Faculty</option><option>Hall / Dormitory</option><option>Financial / Accounts</option>
+            <option>Ragging / Bullying</option><option>Sexual Harassment</option><option>Safety / Security</option>
+            <option>Administration</option><option>Other</option>
+          </select>
+        </div>
+        <div class="fld"><label>Against (optional)</label><input id="comp-against" placeholder="Name or department"></div>
+        <div class="fld" style="grid-column:1/-1"><label>Full Description</label><textarea id="comp-desc" style="height:90px;resize:vertical" placeholder="Describe the incident with date, time, location…"></textarea></div>
+        <div class="fld"><label>Anonymous?</label><select id="comp-anon"><option value="no">No — I'll provide my info</option><option value="yes">Yes — keep me anonymous</option></select></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-p" onclick="submitComplaint()">Submit Complaint →</button>
+        <button class="btn btn-o" onclick="quickSend('I need to file a complaint about: '+document.getElementById('comp-cat').value+'. Can you guide me?')">Ask Duke →</button>
+      </div>
+      <div id="comp-result" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CAREERS ═══ -->
+<div id="panel-careers" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Jobs & Careers</div><div class="ps">Duke finds opportunities matching your profile and applies for you</div></div>
+    <div class="card"><div class="ct">⚡ Duke Career Engine</div>
+      <p style="font-size:13.5px;color:var(--t3);line-height:1.6;margin-bottom:12px">Duke monitors CDC (Career Development Centre), HRDI, and partner companies. It matches opportunities to your CGPA, department, and skills — and can draft your CV, write cover letters, or submit applications on your behalf.</p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-p" onclick="quickSend('Find me job opportunities matching my profile. My department is CSE, CGPA 3.72.')">Find Jobs for Me →</button>
+        <button class="btn btn-o" onclick="quickSend('Help me write a CV and cover letter for a software engineer position.')">Build My CV →</button>
+        <button class="btn btn-g" onclick="quickSend('My CGPA is below 3.0. Can you help me improve my academic performance?')">Academic Support →</button>
+      </div>
+    </div>
+    <div id="jobs-list"></div>
+  </div>
+</div>
+
+<!-- ═══ EXCHANGE ═══ -->
+<div id="panel-exchange" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">International Exchange Programs</div><div class="ps">Duke alerts you and applies on your behalf via International Affairs</div></div>
+    <div id="exchange-list"></div>
+  </div>
+</div>
+
+<!-- ═══ DEPARTMENTS ═══ -->
+<div id="panel-departments" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Departments</div><div class="ps">All academic departments at DIU</div></div>
+    <div class="dg" id="dept-grid"></div>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div id="panel-settings" class="panel">
+  <div class="cs">
+    <div class="ph"><div class="pt">Settings</div><div class="ps">Configure Duke</div></div>
+    <div class="card"><div class="ct">🔑 Gemini API Key</div>
+      <p style="font-size:13px;color:var(--t3);line-height:1.6">Get a free key from <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--blue)">Google AI Studio</a>. Stored in your browser only.</p>
+      <div class="sr"><input type="password" id="key-inp" placeholder="AIza…"><button class="btn btn-p btn-sm" onclick="saveKey()">Save</button><button class="btn btn-o btn-sm" onclick="clearKey()">Clear</button></div>
+      <p id="key-status" style="margin-top:8px;font-size:13px"></p>
+    </div>
+    <div class="card"><div class="ct">🌐 Backend URL</div>
+      <div class="sr"><input type="text" id="url-inp" placeholder="http://localhost:8000"><button class="btn btn-p btn-sm" onclick="saveUrl()">Save</button></div>
+      <p style="margin-top:8px;font-size:12px;color:var(--t4)">Current: <span id="url-current" style="color:var(--t1)">—</span></p>
+    </div>
+    <div class="card"><div class="ct">👤 Logged In As</div>
+      <p style="font-size:13.5px;color:var(--t2)" id="settings-user-info">—</p>
+      <button class="btn btn-o btn-sm" style="margin-top:12px" onclick="logout()">Sign Out</button>
+    </div>
+    <div class="card"><div class="ct">ℹ️ Demo Mode</div>
+      <p style="font-size:13px;color:var(--t3);line-height:1.7">Duke runs in demo mode with a full built-in DIU database. Add a Gemini key above for live AI responses directly in the browser — no backend needed.</p>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <span class="badge bg">Demo: Active</span>
+        <span class="badge" id="badge-gemini" style="background:var(--blue-lt);color:var(--blue)">Gemini: Not set</span>
+        <span class="badge" id="badge-backend" style="background:var(--blue-lt);color:var(--blue)">Backend: Not set</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app-body -->
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DUKE OF DIU — Digital Brain
+//  Auth · Chat · Admissions · Hall · Events · Careers
+//  Accounts · Contacts · Scholarship · Lost&Found · Exchange
+// ═══════════════════════════════════════════════════════
+
+let GEMINI_KEY = localStorage.getItem('duke_gemini_key')||'';
+let BACKEND_URL = localStorage.getItem('duke_backend_url')||'';
+let chatHistory = [];
+let currentUser = null;
+
+// ─── DEMO USER PROFILES ──────────────────────────────
+const DEMO_USERS = {
+  'tanvir.ahmed@diu.edu.bd': {
+    name:'Tanvir Ahmed Chowdhury', role:'student', dept:'CSE', id:'DIU-2022-001',
+    semester:6, cgpa:3.72, hall:'Hall A', room:'A-204',
+    fees_due:0, fees_paid:135000, scholarship:'Merit 20%',
+    avatar:'T', color:'#0055A5'
+  },
+  'parent.rahela@gmail.com': {
+    name:'Rahela Begum (Parent of Tanvir)', role:'parent', child:'DIU-2022-001',
+    avatar:'R', color:'#22963f'
+  },
+  'proctor@diu.edu.bd': {
+    name:'Proctor Office Staff', role:'staff', dept:'Administration',
+    avatar:'P', color:'#c9a227'
+  }
+};
+
+// ─── DIU DATA ─────────────────────────────────────────
+const DIU = {
+  depts:{
+    CSE:{id:'CSE',name:'Computer Science & Engineering',faculty:'Science & IT',head:'Prof. Dr. Touhid Bhuiyan',credits:148,years:4,fee:222000,seats:240,avail:55,minSSC:3.5,minHSC:3.5,needs:'Physics & Math',desc:'AI/ML, algorithms, cybersecurity, IoT, cloud computing.',jobs:['Software Engineer','Data Scientist','AI Engineer'],popular:true},
+    SWE:{id:'SWE',name:'Software Engineering',faculty:'Science & IT',head:'Dr. Imran Mahmud',credits:148,years:4,fee:222000,seats:120,avail:30,minSSC:3.5,minHSC:3.5,needs:'Physics & Math',desc:'DevOps, agile, software design, testing, project management.',jobs:['Software Developer','QA Engineer','DevOps Engineer'],popular:true},
+    EEE:{id:'EEE',name:'Electrical & Electronic Engineering',faculty:'Engineering',head:'Prof. Dr. A.K.M. Fazlul Haque',credits:150,years:4,fee:225000,seats:90,avail:22,minSSC:4.0,minHSC:4.0,needs:'Physics & Math',desc:'Power systems, circuit design, renewable energy.',jobs:['Electrical Engineer','Power Engineer'],popular:false},
+    ICE:{id:'ICE',name:'Information & Communication Engineering',faculty:'Engineering',head:'Dr. Syed Akhter Hossain',credits:148,years:4,fee:207200,seats:60,avail:18,minSSC:3.5,minHSC:3.5,needs:'Physics & Math',desc:'Telecom, networking, signal processing.',jobs:['Network Engineer','Telecom Engineer'],popular:false},
+    TE:{id:'TE',name:'Textile Engineering',faculty:'Engineering',head:'Prof. Dr. Md. Mahbubul Haque',credits:160,years:4,fee:208000,seats:60,avail:20,minSSC:3.0,minHSC:3.0,needs:'Any background',desc:'Fabric manufacturing, dyeing, sustainable textile.',jobs:['Textile Engineer','Production Manager'],popular:false},
+    CE:{id:'CE',name:'Civil Engineering',faculty:'Engineering',head:'Dr. Md. Rezaul Karim',credits:155,years:4,fee:217000,seats:60,avail:15,minSSC:3.5,minHSC:3.5,needs:'Physics & Math',desc:'Structural engineering, construction, transportation.',jobs:['Civil Engineer'],popular:false},
+    BBA:{id:'BBA',name:'Business Administration',faculty:'Business & Entrepreneurship',head:'Prof. Dr. Mostafa Kamal',credits:130,years:4,fee:143000,seats:200,avail:75,minSSC:2.5,minHSC:2.5,needs:'Any background',desc:'Marketing, finance, HRM, entrepreneurship.',jobs:['Business Analyst','Marketing Manager','Entrepreneur'],popular:true},
+    ENTREP:{id:'ENTREP',name:'Entrepreneurship',faculty:'Business',head:'Prof. Dr. Md. Aminul Islam',credits:130,years:4,fee:130000,seats:60,avail:25,minSSC:2.5,minHSC:2.5,needs:'Any background',desc:'Startup ecosystem, venture creation, innovation.',jobs:['Entrepreneur','Startup Founder'],popular:false},
+    ENG:{id:'ENG',name:'English',faculty:'Humanities',head:'Prof. Dr. S.R.H. Noori',credits:120,years:4,fee:108000,seats:80,avail:35,minSSC:2.5,minHSC:2.5,needs:'Any background',desc:'Literature, linguistics, creative writing.',jobs:['Content Writer','Teacher','Translator'],popular:false},
+    LAW:{id:'LAW',name:'Law',faculty:'Humanities',head:'Prof. Dr. Md. Rafiqul Islam',credits:130,years:4,fee:130000,seats:60,avail:18,minSSC:2.5,minHSC:2.5,needs:'Any background',desc:'Constitutional, criminal, corporate, international law.',jobs:['Lawyer','Legal Advisor'],popular:false},
+    PHARMACY:{id:'PHARMACY',name:'Pharmacy',faculty:'Health & Life Sciences',head:'Prof. Dr. Md. Anwar Hossain',credits:168,years:5,fee:268800,seats:80,avail:20,minSSC:4.0,minHSC:4.0,needs:'Biology mandatory',desc:'Drug formulation, clinical pharmacy, pharmacology.',jobs:['Pharmacist','Clinical Researcher'],popular:false},
+    PH:{id:'PH',name:'Public Health',faculty:'Health',head:'Dr. Md. Shafiqul Islam',credits:130,years:4,fee:143000,seats:60,avail:22,minSSC:3.0,minHSC:3.0,needs:'Biology preferred',desc:'Epidemiology, community health, health policy.',jobs:['Public Health Officer'],popular:false},
+  },
+  apps:[
+    {id:'APP-2025-001',name:'Rakibul Islam',dept:'CSE',ssc:5.0,hsc:5.0,status:'approved_direct',date:'2025-01-10',docs:['ssc_cert','hsc_cert','nid']},
+    {id:'APP-2025-002',name:'Mim Sultana',dept:'PHARMACY',ssc:4.5,hsc:4.6,status:'pending_test',date:'2025-01-12',docs:['ssc_cert','hsc_cert']},
+    {id:'APP-2025-003',name:'Asif Mahmud',dept:'BBA',ssc:3.5,hsc:4.0,status:'pending_interview',date:'2025-01-15',docs:['ssc_cert']},
+  ],
+  schedules:[
+    {id:'INT-2025-001',applicant:'Asif Mahmud',dept:'BBA',interviewer:'Prof. Dr. Mostafa Kamal',date:'2025-02-10',time:'10:00 AM',venue:'Room 204, Academic Building',status:'scheduled'},
+  ],
+  scholarships:{
+    '100% Waiver':'HSC Golden GPA 5.00 (Full scholarship)',
+    '60% Waiver':'DIU employee / direct family member',
+    '50% Waiver':'HSC GPA 5.00',
+    '35% Waiver':'Specially-abled students',
+    '30% Waiver':'Daffodil College alumni / Sibling & spouse both enrolled',
+    '25% Waiver':'Tribal / indigenous students',
+    '+10% Extra':'Additional for female students on any existing waiver',
+    'Merit Continuation':'Maintain SGPA ≥ 3.00 + 12 credits/semester',
+  },
+  contacts:[
+    {name:'Proctor Office',role:'Student Discipline & Welfare',phone:'09617901212 x201',email:'proctor@diu.edu.bd',icon:'⚖️',bg:'#e8f0fb'},
+    {name:'Registrar Office',role:'Academic Records & Certificates',phone:'09617901212 x105',email:'registrar@diu.edu.bd',icon:'📜',bg:'#e6f7eb'},
+    {name:'Accounts Department',role:'Fee Payment & Financial Queries',phone:'09617901212 x150',email:'accounts@diu.edu.bd',icon:'💳',bg:'#fff8e1'},
+    {name:'Hall Administration',role:'Residential Life & Complaints',phone:'09617901212 x300',email:'hall@diu.edu.bd',icon:'🏠',bg:'#f3e5f5'},
+    {name:'Career Development Centre (CDC)',role:'Jobs, Internships, Career Guidance',phone:'09617901212 x400',email:'cdc@diu.edu.bd',icon:'💼',bg:'#e8f5e9'},
+    {name:'International Affairs',role:'Exchange Programs & International Students',phone:'09617901212 x500',email:'international@diu.edu.bd',icon:'🌍',bg:'#e3f2fd'},
+    {name:'HRDI',role:'Human Resource Development Institute',phone:'09617901212 x600',email:'hrdi@diu.edu.bd',icon:'📈',bg:'#fff3e0'},
+    {name:'Medical Centre',role:'Health & Medical Services',phone:'09617901212 x700',email:'medical@diu.edu.bd',icon:'🏥',bg:'#fce4ec'},
+    {name:'Anti-Ragging Committee',role:'Report Ragging & Bullying Incidents',phone:'09617901212 x800',email:'antiragging@diu.edu.bd',icon:'🛡️',bg:'#ffebee'},
+    {name:'Library',role:'Books, Research, Digital Resources',phone:'09617901212 x250',email:'library@diu.edu.bd',icon:'📚',bg:'#ede7f6'},
+  ],
+  events:[
+    {id:'EV-001',title:'DIU Tech Fest 2025',type:'Technology',date:'2025-03-15',time:'9:00 AM',venue:'Main Auditorium',dept:'All',desc:'Annual technology festival with hackathons, robotics, and AI showcase.',registered:false},
+    {id:'EV-002',title:'Spring Semester Orientation',type:'Academic',date:'2025-02-01',time:'10:00 AM',venue:'Central Lawn',dept:'All',desc:'Welcome orientation for new Spring 2025 students.',registered:true},
+    {id:'EV-003',title:'National Entrepreneurship Summit',type:'Business',date:'2025-03-22',time:'8:00 AM',venue:'Convention Center',dept:'BBA,ENTREP',desc:'National-level summit with Forbes-recognized speakers.',registered:false},
+    {id:'EV-004',title:'IEEE Student Branch Workshop',type:'Engineering',date:'2025-02-18',time:'2:00 PM',venue:'EEE Lab Complex',dept:'EEE,CSE',desc:'Circuit design and embedded systems hands-on workshop.',registered:false},
+    {id:'EV-005',title:'Cultural Night 2025',type:'Cultural',date:'2025-02-28',time:'6:00 PM',venue:'Open Amphitheater',dept:'All',desc:'Annual cultural night with music, drama, and food fest.',registered:false},
+  ],
+  jobs:[
+    {id:'J-001',title:'Junior Software Engineer',company:'Brain Station 23',type:'Full-time',location:'Dhaka',dept:'CSE,SWE',cgpa_min:3.0,deadline:'2025-03-01',salary:'BDT 35,000–50,000',posted:'2025-01-20',source:'CDC'},
+    {id:'J-002',title:'Data Analyst Intern',company:'Grameenphone',type:'Internship',location:'Dhaka',dept:'CSE,SWE,BBA',cgpa_min:2.8,deadline:'2025-02-15',salary:'BDT 15,000/month',posted:'2025-01-18',source:'CDC'},
+    {id:'J-003',title:'Marketing Executive',company:'PRAN-RFL Group',type:'Full-time',location:'Dhaka',dept:'BBA',cgpa_min:2.75,deadline:'2025-02-28',salary:'BDT 25,000–35,000',posted:'2025-01-19',source:'CDC'},
+    {id:'J-004',title:'Campus Ambassador',company:'Pathao',type:'Part-time',location:'DIU Campus',dept:'All',cgpa_min:2.5,deadline:'2025-02-10',salary:'Commission + Perks',posted:'2025-01-22',source:'DIU Campus Jobs'},
+    {id:'J-005',title:'Research Assistant',company:'DIU Research Cell',type:'Campus Job',location:'DIU Campus',dept:'CSE,EEE',cgpa_min:3.2,deadline:'2025-02-20',salary:'BDT 8,000/month',posted:'2025-01-21',source:'HRDI'},
+  ],
+  exchanges:[
+    {id:'EX-001',univ:'Millersville University, USA',country:'🇺🇸 USA',program:'Semester Exchange',deadline:'2025-03-30',cgpa_min:3.0,duration:'1 semester',seats:5,dept:'All'},
+    {id:'EX-002',univ:'University of Zaragoza, Spain',country:'🇪🇸 Spain',program:'Research Exchange',deadline:'2025-04-15',cgpa_min:3.2,duration:'3 months',seats:3,dept:'CSE,EEE,SWE'},
+    {id:'EX-003',univ:'Washington University of Science & Technology, USA',country:'🇺🇸 USA',program:'Joint Degree Program',deadline:'2025-05-01',cgpa_min:3.5,duration:'1 year',seats:10,dept:'CSE,SWE,BBA'},
+  ],
+  lostFound:[
+    {id:'LF-001',type:'Lost',cat:'Electronics',item:'Blue OnePlus 12 phone',loc:'Library Ground Floor',date:'2025-01-28',status:'open',icon:'📱'},
+    {id:'LF-002',type:'Found',cat:'ID Card / Documents',item:'Student ID Card — DIU-2023-045',loc:'Cafeteria',date:'2025-01-29',status:'open',icon:'🪪'},
+    {id:'LF-003',type:'Lost',cat:'Keys',item:'Keychain with 3 keys (Honda tag)',loc:'Hall A parking',date:'2025-01-27',status:'claimed',icon:'🔑'},
+    {id:'LF-004',type:'Found',cat:'Clothing / Bag',item:'Black JanSport backpack',loc:'CSE Lab 3',date:'2025-01-30',status:'open',icon:'🎒'},
+  ],
+  notifications:[
+    {id:'N-001',icon:'💼',msg:'New job: Junior Software Engineer at Brain Station 23 — matches your profile!',time:'2 hours ago',read:false},
+    {id:'N-002',icon:'🌍',msg:'Exchange Program open: Millersville University USA — you qualify (CGPA 3.72)!',time:'5 hours ago',read:false},
+    {id:'N-003',icon:'📣',msg:'DIU Tech Fest 2025 registration opens tomorrow. Duke can register you!',time:'1 day ago',read:false},
+    {id:'N-004',icon:'💳',msg:'Semester 7 fee due on Feb 15. Duke can send reminder to accounts.',time:'2 days ago',read:false},
+  ],
+};
+
+// ═══════════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════════
+function fillDemo(email, pass, role) {
+  document.getElementById('loginEmail').value = email;
+  document.getElementById('loginPass').value = pass;
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+
+  if (!email || !pass) { showLoginErr('Please enter your email and password.'); return; }
+  if (pass !== '1234' && !email.endsWith('@diu.edu.bd') && pass.length < 4) {
+    showLoginErr('Invalid credentials.'); return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  setTimeout(() => {
+    const user = DEMO_USERS[email] || {
+      name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      role: email.endsWith('@diu.edu.bd') ? 'student' : 'visitor',
+      dept: 'General', id: 'GUEST-001', cgpa: 0, avatar: email[0].toUpperCase(), color: '#003366'
+    };
+    currentUser = { ...user, email };
+    err.style.display = 'none';
+    document.getElementById('loginScreen').style.opacity = '0';
+    document.getElementById('loginScreen').style.transition = 'opacity .4s';
+    setTimeout(() => { document.getElementById('loginScreen').style.display = 'none'; bootApp(); }, 400);
+  }, 800);
+}
+
+function showLoginErr(msg) {
+  const e = document.getElementById('loginErr');
+  e.textContent = msg; e.style.display = 'block';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'Sign In to Duke ✦';
+}
+
+function bootApp() {
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').style.flexDirection = 'column';
+  document.getElementById('app').style.height = '100%';
+
+  // Set user info
+  document.getElementById('userAv').textContent = currentUser.avatar;
+  document.getElementById('userAv').style.background = `linear-gradient(135deg, ${currentUser.color}cc, ${currentUser.color})`;
+  document.getElementById('userName').textContent = currentUser.name.split(' ').slice(0,2).join(' ');
+  document.getElementById('userRole').textContent = currentUser.role === 'student' ? `Student · ${currentUser.dept}` : currentUser.role === 'parent' ? 'Parent' : 'Staff';
+  document.getElementById('welcomeUser').textContent = `✦ Welcome back, ${currentUser.name.split(' ')[0]}`;
+
+  // Set chips based on role
+  const chips = currentUser.role === 'student' ? [
+    ['Check my fees & dues','💳 My Fees'],['Any new jobs matching my profile?','💼 Find Jobs'],
+    ['What events are coming up?','📣 Upcoming Events'],['What is my current CGPA status?','📊 My Grades'],
+    ['Hall complaint process','🏠 Hall Help'],['Exchange programs I qualify for?','🌍 Exchange'],
+    ['Check my scholarship eligibility','🏅 Scholarships'],['Lost something on campus','🔍 Lost & Found'],
+  ] : currentUser.role === 'parent' ? [
+    ["Check my child's fee status",'💳 Fee Status'],["What's my child's academic progress?",'📊 Academics'],
+    ['Who is the proctor?','📞 Proctor Contact'],['Hall facility information','🏠 Hall Info'],
+    ['Scholarship options available','🏅 Scholarships'],['DIU admission policy','📋 Admission'],
+  ] : [
+    ['List pending applications','📋 Applications'],['Schedule an interview','📅 Schedule'],
+    ['Student complaints','📢 Complaints'],['Lost & found entries','🔍 Lost & Found'],
+  ];
+
+  const chipGrid = document.getElementById('welcomeChips');
+  chipGrid.innerHTML = chips.map(([msg, label]) =>
+    `<div class="chip" onclick="quickSend('${msg}')">${label}</div>`
+  ).join('');
+
+  // Render notifications
+  renderNotifications();
+  renderDepts();
+  renderApps();
+  renderSchedules();
+  renderContacts();
+  renderEvents();
+  renderJobs();
+  renderExchange();
+  renderLostFound();
+  renderPortal();
+  renderAccounts();
+  renderScholarship();
+  initSettings();
+
+  if (!GEMINI_KEY && !BACKEND_URL) document.getElementById('api-warn-box').style.display = 'flex';
+}
+
+function logout() {
+  currentUser = null; chatHistory = [];
+  document.getElementById('app').style.display = 'none';
+  const ls = document.getElementById('loginScreen');
+  ls.style.display = 'flex'; ls.style.opacity = '1';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'Sign In to Duke ✦';
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const p = document.getElementById('panel-'+name);
+  if (p) p.classList.add('active');
+}
+function switchTab(btn, name) {
+  document.querySelectorAll('.tnl').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const map = {chat:'chat',dashboard:'dashboard',admission:'eligibility',departments:'departments',careers:'careers',events:'events'};
+  showPanel(map[name]||name);
+  syncSidebar(map[name]||name);
+}
+function switchSide(el, name) {
+  document.querySelectorAll('.si').forEach(s => s.classList.remove('active'));
+  if (el) el.classList.add('active');
+  showPanel(name);
+}
+function syncSidebar(name) {
+  document.querySelectorAll('.si').forEach(s => {
+    s.classList.remove('active');
+    if (s.getAttribute('onclick')&&s.getAttribute('onclick').includes("'"+name+"'")) s.classList.add('active');
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function renderDepts() {
+  document.getElementById('dept-grid').innerHTML = Object.values(DIU.depts).map(d => `
+    <div class="dc" onclick="quickSend('Tell me about ${d.id} at DIU — fees, career prospects, and requirements.')">
+      <div class="dc-id">${d.id}${d.popular?' ⭐':''}</div>
+      <div class="dc-name">${d.name}</div>
+      <div class="dc-head">${d.head}</div>
+      <div class="dc-desc">${d.desc}</div>
+      <div class="dc-meta">
+        <div class="dc-mi"><strong>${d.avail}</strong>Seats</div>
+        <div class="dc-mi"><strong>৳${Math.round(d.fee/1000)}K</strong>Total</div>
+        <div class="dc-mi"><strong>${d.years}yr</strong>Duration</div>
+        <div class="dc-mi"><strong>${d.credits}</strong>Credits</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderApps() {
+  const sm = {approved_direct:'<span class="badge bg">Direct Approved</span>',pending_test:'<span class="badge by">Pending Test</span>',pending_interview:'<span class="badge br">Pending Interview</span>'};
+  document.getElementById('apps-body').innerHTML = DIU.apps.map(a => `
+    <tr><td style="font-size:11px;font-family:monospace;color:var(--t4)">${a.id}</td>
+    <td style="font-weight:500">${a.name}</td><td><span class="badge bn">${a.dept}</span></td>
+    <td style="font-weight:600">${(a.ssc+a.hsc).toFixed(2)}</td><td>${sm[a.status]||a.status}</td>
+    <td style="color:var(--t4);font-size:12px">${a.date}</td>
+    <td><span class="badge ${a.docs.length>=3?'bg':'by'}">${a.docs.length} docs</span></td></tr>`).join('');
+}
+
+function renderSchedules() {
+  document.getElementById('sched-body').innerHTML = DIU.schedules.map(s => `
+    <tr><td style="font-size:11px;font-family:monospace;color:var(--t4)">${s.id}</td>
+    <td style="font-weight:500">${s.applicant}</td><td><span class="badge bn">${s.dept}</span></td>
+    <td style="font-size:13px">${s.interviewer}</td><td style="font-weight:500">${s.date} · ${s.time}</td>
+    <td style="color:var(--t3);font-size:12px">${s.venue}</td><td><span class="badge bg">${s.status}</span></td></tr>`).join('');
+}
+
+function renderContacts() {
+  document.getElementById('contacts-list').innerHTML = DIU.contacts.map(c => `
+    <div class="contact-card">
+      <div class="contact-av" style="background:${c.bg};font-size:22px">${c.icon}</div>
+      <div class="contact-info">
+        <div class="contact-name">${c.name}</div>
+        <div class="contact-role">${c.role}</div>
+        <div style="font-size:11.5px;color:var(--t4);margin-top:3px">${c.phone} · ${c.email}</div>
+      </div>
+      <div class="contact-actions">
+        <button class="btn btn-o btn-sm" onclick="quickSend('Connect me with ${c.name}. I need help with ${c.role}.')">Ask Duke</button>
+        <button class="btn btn-p btn-sm" onclick="alert('Opening email to ${c.email}')">Email</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderEvents() {
+  document.getElementById('events-list').innerHTML = DIU.events.map(e => `
+    <div class="ev-card" style="border-left-color:${e.registered?'var(--green)':'var(--blue)'}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div>
+          <div class="ev-title">${e.title}</div>
+          <div class="ev-meta">📅 ${e.date} · ⏰ ${e.time} · 📍 ${e.venue}</div>
+          <div style="font-size:12.5px;color:var(--t3);margin-top:5px">${e.desc}</div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <span class="badge bb">${e.type}</span>
+            <span class="badge bn">For: ${e.dept}</span>
+            ${e.registered?'<span class="badge bg">✓ Registered</span>':''}
+          </div>
+        </div>
+        <div style="flex-shrink:0">
+          ${e.registered?`<button class="btn btn-o btn-sm" disabled>Registered ✓</button>`:`<button class="btn btn-p btn-sm" onclick="registerEvent('${e.id}',this)">Register via Duke</button>`}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function registerEvent(id, btn) {
+  const ev = DIU.events.find(e => e.id === id);
+  if (ev) { ev.registered = true; }
+  btn.textContent = 'Registered ✓'; btn.classList.remove('btn-p'); btn.classList.add('btn-o'); btn.disabled = true;
+  showToast(`✅ Duke registered you for "${ev?.title}"!`);
+}
+
+function renderJobs() {
+  document.getElementById('jobs-list').innerHTML = DIU.jobs.map(j => `
+    <div class="job-card" onclick="quickSend('I want to apply for the ${j.title} position at ${j.company}. Help me apply.')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div>
+          <div class="job-title">${j.title}</div>
+          <div class="job-company">${j.company} · ${j.location}</div>
+          <div class="job-meta">
+            <span class="badge ${j.type==='Campus Job'?'bgold':j.type==='Internship'?'by':'bg'}">${j.type}</span>
+            <span class="badge bb">${j.salary}</span>
+            <span class="badge bn">Min CGPA ${j.cgpa_min}</span>
+            <span class="badge br">Deadline ${j.deadline}</span>
+          </div>
+          <div style="font-size:11.5px;color:var(--t4);margin-top:5px">Source: ${j.source} · Posted ${j.posted}</div>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="event.stopPropagation();quickSend('Apply for ${j.title} at ${j.company} on my behalf. Help me draft the cover letter.')">Apply via Duke</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderExchange() {
+  document.getElementById('exchange-list').innerHTML = `
+    <div class="card"><div class="ct">🌍 Duke monitors International Affairs for new exchange openings</div>
+      <p style="font-size:13.5px;color:var(--t3);line-height:1.6;margin-bottom:12px">Duke tracks all programs from DIU's 41 international partners. When a new program opens matching your profile, you'll be notified instantly. Duke can also draft your application, statement of purpose, and submit on your behalf.</p>
+    </div>` + DIU.exchanges.map(ex => `
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--t1);margin-bottom:3px">${ex.univ}</div>
+          <div style="font-size:13px;color:var(--t3);margin-bottom:8px">${ex.country} · ${ex.program} · ${ex.duration}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span class="badge bb">${ex.seats} seats</span>
+            <span class="badge bn">Min CGPA ${ex.cgpa_min}</span>
+            <span class="badge br">Deadline ${ex.deadline}</span>
+            <span class="badge bg">For: ${ex.dept}</span>
+          </div>
+        </div>
+        <button class="btn btn-p btn-sm" onclick="quickSend('I want to apply for the exchange program at ${ex.univ}. Help me prepare my application and statement of purpose.')">Apply via Duke</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderLostFound() {
+  document.getElementById('lf-list').innerHTML = `<div style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px">Active Entries</div>` +
+    DIU.lostFound.map(l => `
+    <div class="lf-card">
+      <div class="lf-icon">${l.icon}</div>
+      <div class="lf-body">
+        <div class="lf-title">${l.type}: ${l.item}</div>
+        <div class="lf-meta">📍 ${l.loc} · 📅 ${l.date}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end">
+        <span class="badge ${l.status==='claimed'?'bg':'by'}">${l.status}</span>
+        <button class="btn btn-o btn-sm" onclick="quickSend('I saw the lost & found entry: ${l.item}. Can you help me connect with the right person?')">Contact</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderPortal() {
+  if (!currentUser || currentUser.role !== 'student') {
+    document.getElementById('portal-content').innerHTML = `<div class="card"><div class="ct">🔒 Student Portal</div><p style="color:var(--t3)">Log in with a student account to view your portal.</p></div>`;
+    return;
+  }
+  const u = currentUser;
+  const cgpaColor = u.cgpa >= 3.5 ? 'var(--green)' : u.cgpa >= 3.0 ? 'var(--blue)' : '#e53935';
+  document.getElementById('portal-content').innerHTML = `
+    <div class="sg">
+      <div class="sc"><div class="sl">Student ID</div><div class="sv n" style="font-size:18px">${u.id}</div><div class="ss2">${u.dept}</div></div>
+      <div class="sc"><div class="sl">Current CGPA</div><div class="sv" style="color:${cgpaColor}">${u.cgpa}</div><div class="ss2">Semester ${u.semester}</div></div>
+      <div class="sc"><div class="sl">Fees Paid</div><div class="sv g">৳${(u.fees_paid/1000).toFixed(0)}K</div><div class="ss2">${u.fees_due===0?'No dues':'Due: ৳'+u.fees_due}</div></div>
+      <div class="sc"><div class="sl">Scholarship</div><div class="sv gold" style="font-size:18px">${u.scholarship||'None'}</div><div class="ss2">Active</div></div>
+    </div>
+    <div class="card"><div class="ct">📊 Academic Progress</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:var(--t2)">CGPA Progress (3.72 / 4.0)</span><span style="font-size:12px;color:var(--t4)">93%</span></div><div class="prog-bar"><div class="prog-fill prog-green" style="width:93%"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:var(--t2)">Credits Completed (88 / 148)</span><span style="font-size:12px;color:var(--t4)">59%</span></div><div class="prog-bar"><div class="prog-fill prog-blue" style="width:59%"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:var(--t2)">Semester ${u.semester} of 8</span><span style="font-size:12px;color:var(--t4)">75%</span></div><div class="prog-bar"><div class="prog-fill prog-gold" style="width:75%"></div></div></div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">⚡ Duke Suggestions for You</div>
+      <div class="chip-grid">
+        <div class="chip" onclick="quickSend('Help me improve my CGPA. I am currently at ${u.cgpa}.')">📈 Improve CGPA</div>
+        <div class="chip" onclick="switchSide(null,'careers')">💼 Find Jobs</div>
+        <div class="chip" onclick="switchSide(null,'exchange')">🌍 Exchange Programs</div>
+        <div class="chip" onclick="quickSend('Write a professional LinkedIn summary for a CSE student with CGPA ${u.cgpa}.')">✍️ Write LinkedIn Bio</div>
+        <div class="chip" onclick="quickSend('Help me write a proposal for DIU research grant.')">📄 Research Proposal</div>
+        <div class="chip" onclick="switchSide(null,'scholarship')">🏅 Check Scholarships</div>
+      </div>
+    </div>`;
+}
+
+function renderAccounts() {
+  const u = currentUser;
+  const isStudent = u && u.role === 'student';
+  document.getElementById('accounts-content').innerHTML = isStudent ? `
+    <div class="sg" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="sc"><div class="sl">Total Paid</div><div class="sv g">৳${(u.fees_paid/1000).toFixed(0)}K</div><div class="ss2">All semesters</div></div>
+      <div class="sc"><div class="sl">Current Due</div><div class="sv" style="color:${u.fees_due>0?'var(--danger)':'var(--green)'}">${u.fees_due>0?'৳'+u.fees_due:'Clear ✓'}</div><div class="ss2">${u.fees_due>0?'Pay before semester':'No outstanding dues'}</div></div>
+      <div class="sc"><div class="sl">Scholarship</div><div class="sv gold" style="font-size:20px">${u.scholarship||'None'}</div><div class="ss2">Applied waiver</div></div>
+    </div>` : `<div class="card"><p style="color:var(--t3)">Please log in with a student account to view financial details.</p></div>`;
+}
+
+function renderScholarship() {
+  document.getElementById('scholarship-content').innerHTML = `
+    <div class="card"><div class="ct">🏅 DIU Scholarship & Waiver Categories</div>
+      ${Object.entries(DIU.scholarships).map(([k,v]) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gb)">
+        <span class="badge bgold" style="min-width:90px;justify-content:center">${k}</span>
+        <span style="font-size:13.5px;color:var(--t2)">${v}</span>
+      </div>`).join('')}
+    </div>
+    <div class="card"><div class="ct">⚡ Check Your Eligibility</div>
+      <p style="font-size:13.5px;color:var(--t3);margin-bottom:12px">Duke checks all 25+ scholarship categories against your profile and tells you exactly which ones you qualify for — and helps you apply.</p>
+      <button class="btn btn-p" onclick="quickSend('Check all scholarships I qualify for based on my profile and help me apply.')">Check My Eligibility →</button>
+    </div>`;
+}
+
+function renderNotifications() {
+  const unread = DIU.notifications.filter(n => !n.read).length;
+  document.getElementById('notifCount').textContent = unread;
+  document.getElementById('notifList').innerHTML = DIU.notifications.map(n => `
+    <div class="np-item" onclick="markRead('${n.id}',this)">
+      <div class="np-icon">${n.icon}</div>
+      <div class="np-body"><div class="np-msg">${n.msg}</div><div class="np-time">${n.time}</div></div>
+      ${!n.read?'<div class="np-dot"></div>':''}
+    </div>`).join('');
+}
+
+function toggleNotif() {
+  document.getElementById('notifPanel').classList.toggle('open');
+}
+function markRead(id, el) {
+  const n = DIU.notifications.find(n => n.id === id);
+  if (n) n.read = true;
+  el.querySelector('.np-dot')?.remove();
+  const unread = DIU.notifications.filter(n => !n.read).length;
+  document.getElementById('notifCount').textContent = unread || '';
+  if (!unread) document.getElementById('notifCount').style.display = 'none';
+}
+function markAllRead() {
+  DIU.notifications.forEach(n => n.read = true);
+  renderNotifications();
+  document.getElementById('notifCount').style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('notifBtn').contains(e.target) && !document.getElementById('notifPanel').contains(e.target))
+    document.getElementById('notifPanel').classList.remove('open');
+});
+
+// ═══════════════════════════════════════════════════════
+//  FORMS
+// ═══════════════════════════════════════════════════════
+function checkElig() {
+  const ssc=parseFloat(document.getElementById('el-ssc').value);
+  const hsc=parseFloat(document.getElementById('el-hsc').value);
+  const gap=parseInt(document.getElementById('el-gap').value)||0;
+  const deptId=document.getElementById('el-dept').value;
+  const bg=document.getElementById('el-bg').value;
+  if(isNaN(ssc)||isNaN(hsc)){alert('Please enter valid GPA values.');return;}
+  const d=DIU.depts[deptId], combined=ssc+hsc, recs=[];
+  if(ssc<2.5||hsc<2.5){document.getElementById('el-result').innerHTML='<div class="rb err"><strong>❌ Not Eligible</strong><br>Minimum GPA 2.5 in both SSC and HSC required.</div>';return;}
+  let type,cls;
+  if(combined>=10&&gap<=1){type='✅ Direct Admission';cls='ok';recs.push('🎉 Congratulations! Direct admission — no test required.');recs.push(ssc==5&&hsc==5?'💰 100% tuition waiver eligible (Golden GPA)!':'💰 Scholarship may apply.');}
+  else if(combined>=9&&gap<=1){type='📝 Admission Test Required';cls='warn';recs.push('You must pass the DIU admission test.');recs.push('💰 50% waiver if HSC GPA is exactly 5.00.');}
+  else{type='📝 Test + Interview Required';cls='err';recs.push('Admission test and viva/interview are both required.');}
+  if(gap>1){recs.push(`⚠️ Study gap of ${gap} year(s) — written explanation + mandatory interview required.`);cls='warn';}
+  const deptOk=ssc>=(d?.minSSC||2.5)&&hsc>=(d?.minHSC||2.5);
+  if(!deptOk){recs.push(`❌ ${d?.name} requires min SSC ${d?.minSSC}/HSC ${d?.minHSC}. Your grades don't meet this.`);cls='err';
+    Object.values(DIU.depts).filter(x=>x.id!==deptId&&ssc>=x.minSSC&&hsc>=x.minHSC).slice(0,2).forEach(x=>recs.push(`💡 Try <strong>${x.name}</strong> — you qualify.`));}
+  else recs.push(`✅ You meet the GPA requirement for ${d?.name}.`);
+  if(['CSE','SWE','EEE','ICE','CE'].includes(deptId)&&bg!=='science') recs.push('⚠️ This program requires Physics & Math (Science background).');
+  document.getElementById('el-result').innerHTML=`<div class="rb ${cls}">
+    <div style="font-size:11px;color:var(--t4);margin-bottom:4px">COMBINED GPA</div>
+    <div style="font-size:34px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px">${combined.toFixed(2)}<span style="font-size:14px;color:var(--t4);font-weight:400"> / 10.00</span></div>
+    <div style="font-size:16px;font-weight:600;margin-bottom:12px">${type}</div>
+    ${recs.map(r=>`<div style="font-size:13.5px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.06)">${r}</div>`).join('')}
+    <div style="margin-top:12px;font-size:12.5px;color:var(--t3)">Estimated total fees: <strong style="color:var(--blue-dk)">৳${d?.fee?.toLocaleString()}</strong> (${d?.years} yrs, ${d?.credits} credits)</div>
+  </div>`;
+}
+
+function askEligibility() {
+  const ssc=document.getElementById('el-ssc').value, hsc=document.getElementById('el-hsc').value, dept=document.getElementById('el-dept').value;
+  quickSend(`I got SSC ${ssc} and HSC ${hsc}. Can I get admitted to ${dept} at DIU?`);
+}
+
+function submitApp() {
+  const name=document.getElementById('ap-name').value.trim();
+  const email=document.getElementById('ap-email').value.trim();
+  const ssc=parseFloat(document.getElementById('ap-ssc').value);
+  const hsc=parseFloat(document.getElementById('ap-hsc').value);
+  if(!name||!email||isNaN(ssc)||isNaN(hsc)){alert('Please fill in all required fields.');return;}
+  const combined=ssc+hsc, gap=parseInt(document.getElementById('ap-gap').value)||0;
+  const dept=document.getElementById('ap-dept').value;
+  const docs=[...document.querySelectorAll('.doc-cb:checked')].map(c=>c.value);
+  let status,type;
+  if(combined>=10&&gap<=1){status='approved_direct';type='Direct Admission';}
+  else if(combined>=9&&gap<=1){status='pending_test';type='Test Required';}
+  else{status='pending_interview';type='Test + Interview';}
+  const id='APP-'+Date.now().toString(36).toUpperCase().slice(-6);
+  const missing=['ssc_cert','hsc_cert','nid'].filter(d=>!docs.includes(d));
+  DIU.apps.push({id,name,dept,ssc,hsc,status,date:new Date().toISOString().split('T')[0],docs});
+  renderApps();
+  document.getElementById('ap-result').innerHTML=`<div class="rb ${status==='approved_direct'?'ok':status==='pending_test'?'warn':'err'}">
+    <div style="font-size:15px;font-weight:600;margin-bottom:10px">✅ Application Submitted by Duke</div>
+    <div style="display:flex;flex-direction:column;gap:5px;font-size:13.5px">
+      <div>ID: <strong style="font-family:monospace;color:var(--blue)">${id}</strong></div>
+      <div>Path: <strong>${type}</strong> · Combined GPA: <strong>${combined.toFixed(2)}</strong></div>
+      ${missing.length?`<div style="color:#b45309">⚠️ Missing: ${missing.join(', ')}</div>`:`<div style="color:var(--green)">📄 All required documents submitted.</div>`}
+    </div>
+  </div>`;
+}
+
+function submitHallComplaint() {
+  const issue=document.getElementById('hall-issue').value, priority=document.getElementById('hall-priority').value;
+  const desc=document.getElementById('hall-desc').value.trim();
+  if(!desc){alert('Please describe your issue.');return;}
+  const id='HALL-'+Date.now().toString(36).toUpperCase().slice(-5);
+  document.getElementById('hall-result').innerHTML=`<div class="rb ok">
+    <div style="font-weight:600;margin-bottom:6px">✅ Complaint Submitted — ID: ${id}</div>
+    <div style="font-size:13px;color:var(--t3)">Issue: <strong>${issue}</strong> · Priority: <strong>${priority}</strong><br>Duke has forwarded this to Hall Administration. You'll receive a response within 24–48 hours.</div>
+  </div>`;
+}
+
+function submitLostFound() {
+  const type=document.getElementById('lf-type').value, cat=document.getElementById('lf-cat').value;
+  const desc=document.getElementById('lf-desc').value.trim(), loc=document.getElementById('lf-loc').value.trim();
+  if(!desc){alert('Please describe the item.');return;}
+  const icons={Electronics:'📱','ID Card / Documents':'🪪',Keys:'🔑','Clothing / Bag':'🎒','Books / Notes':'📚',Other:'📦'};
+  const id='LF-'+Date.now().toString(36).toUpperCase().slice(-5);
+  DIU.lostFound.unshift({id,type,cat,item:desc,loc:loc||'Campus',date:new Date().toISOString().split('T')[0],status:'open',icon:icons[cat]||'📦'});
+  renderLostFound();
+  showToast(`✅ ${type} item reported — ID: ${id}. Duke notified campus officials.`);
+}
+
+function submitPayIssue() {
+  const issue=document.getElementById('pay-issue').value, details=document.getElementById('pay-details').value.trim();
+  if(!details){alert('Please describe the issue.');return;}
+  const id='PAY-'+Date.now().toString(36).toUpperCase().slice(-5);
+  document.getElementById('pay-result').innerHTML=`<div class="rb info">
+    <div style="font-weight:600;margin-bottom:6px">✅ Submitted to Accounts Dept — ID: ${id}</div>
+    <div style="font-size:13px;color:var(--t3)">Issue: <strong>${issue}</strong><br>Duke has escalated this to the Accounts Department. A reply within 1–2 business days. You can also call <strong>09617901212 x150</strong>.</div>
+  </div>`;
+}
+
+function submitComplaint() {
+  const cat=document.getElementById('comp-cat').value, anon=document.getElementById('comp-anon').value;
+  const desc=document.getElementById('comp-desc').value.trim();
+  if(!desc){alert('Please describe the incident.');return;}
+  const id='COMP-'+Date.now().toString(36).toUpperCase().slice(-5);
+  document.getElementById('comp-result').innerHTML=`<div class="rb ok">
+    <div style="font-weight:600;margin-bottom:6px">✅ Complaint Filed — ID: ${id}</div>
+    <div style="font-size:13px;color:var(--t3)">Category: <strong>${cat}</strong> · ${anon==='yes'?'<strong>Anonymous</strong>':'Your identity recorded'}<br>Duke has routed this to the appropriate committee. A formal acknowledgement will be sent within 24 hours.</div>
+  </div>`;
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1d1d1f;color:#fff;padding:10px 20px;border-radius:999px;font-size:13.5px;font-weight:500;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);animation:fadeUp .3s ease';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════
+function initSettings() {
+  document.getElementById('key-inp').value = GEMINI_KEY ? '••••••••••' : '';
+  document.getElementById('url-inp').value = BACKEND_URL;
+  document.getElementById('url-current').textContent = BACKEND_URL || 'Not set';
+  if(currentUser) document.getElementById('settings-user-info').textContent = `${currentUser.name} · ${currentUser.email} · Role: ${currentUser.role}`;
+  document.getElementById('badge-gemini').textContent = GEMINI_KEY ? 'Gemini: Active ✓' : 'Gemini: Not set';
+  document.getElementById('badge-gemini').className = 'badge '+(GEMINI_KEY?'bg':'by');
+  document.getElementById('badge-backend').textContent = BACKEND_URL ? 'Backend: Active ✓' : 'Backend: Not set';
+}
+function saveKey(){const v=document.getElementById('key-inp').value.trim();if(v&&!v.includes('•')){GEMINI_KEY=v;localStorage.setItem('duke_gemini_key',v);document.getElementById('key-status').innerHTML='<span style="color:var(--green)">✓ Saved.</span>';initSettings();}}
+function clearKey(){GEMINI_KEY='';localStorage.removeItem('duke_gemini_key');document.getElementById('key-inp').value='';document.getElementById('key-status').innerHTML='<span style="color:var(--t4)">Cleared.</span>';initSettings();}
+function saveUrl(){BACKEND_URL=document.getElementById('url-inp').value.trim();localStorage.setItem('duke_backend_url',BACKEND_URL);initSettings();}
+
+// ═══════════════════════════════════════════════════════
+//  CHAT ENGINE
+// ═══════════════════════════════════════════════════════
+async function sendMsg() {
+  const inp = document.getElementById('chatInput');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  document.getElementById('chatWelcome')?.remove();
+  inp.value = ''; inp.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+  addMsg('user', msg);
+  const tid = addTyping();
+  let result;
+  try {
+    if (BACKEND_URL) result = await callBackend(msg);
+    else if (GEMINI_KEY) result = await callGemini(msg);
+    else result = { reply: demoReply(msg), intent: detectIntent(msg) };
+  } catch(e) {
+    result = { reply: demoReply(msg), intent: 'general' };
+  }
+  removeTyping(tid);
+  addMsg('duke', result.reply, result.intent);
+  chatHistory.push({role:'user',content:msg},{role:'model',content:result.reply});
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function quickSend(msg) {
+  switchSide(null,'chat');
+  document.querySelectorAll('.si').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.si')[0].classList.add('active');
+  setTimeout(()=>{
+    document.getElementById('chatInput').value = msg;
+    sendMsg();
+  }, 100);
+}
+
+async function callBackend(msg) {
+  const r = await fetch(`${BACKEND_URL}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history:chatHistory.slice(-10)})});
+  if(!r.ok) throw new Error('Backend '+r.status);
+  const d = await r.json();
+  return {reply:d.reply,intent:d.intent};
+}
+
+async function callGemini(msg) {
+  const sys = buildCtx();
+  const contents = [
+    ...chatHistory.slice(-8).map(h=>({role:h.role==='model'?'model':'user',parts:[{text:h.content}]})),
+    {role:'user',parts:[{text:sys+'\n\n[USER]: '+msg}]}
+  ];
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents,generationConfig:{maxOutputTokens:1000,temperature:0.7}})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message);}
+  const d = await r.json();
+  return {reply:d.candidates?.[0]?.content?.parts?.[0]?.text||'No response.',intent:detectIntent(msg)};
+}
+
+function buildCtx() {
+  const u = currentUser;
+  return `You are Duke, the Digital Brain of Daffodil International University (DIU), Bangladesh. You are talking to ${u?.name} (${u?.role||'visitor'}, ${u?.dept||''}, CGPA ${u?.cgpa||'N/A'}).
+
+YOUR CAPABILITIES: Admission eligibility & form completion · Hall/dorm queries & complaints · Events registration & notifications · Fee & accounts queries · Key contacts & proctor · Lost & Found · Scholarships · Career guidance & job applications · Exchange programs · Student portal navigation · Study support · Complaint routing · CV/cover letter writing · Proposal drafting.
+
+STUDENT PROFILE: ${JSON.stringify({name:u?.name,role:u?.role,dept:u?.dept,cgpa:u?.cgpa,semester:u?.semester,scholarship:u?.scholarship,fees_due:u?.fees_due})}
+
+DIU DATA: Departments: ${JSON.stringify(Object.keys(DIU.depts))} | Active Jobs: ${DIU.jobs.length} | Exchange Programs: ${DIU.exchanges.length} | Upcoming Events: ${DIU.events.length}
+
+ADMISSION POLICY: Min GPA 2.5. Combined 10=direct+100%waiver. 9–9.99=test. <9=test+interview. Gap>1yr=mandatory interview.
+
+RULES: Only answer DIU-related questions. Be warm, proactive, concise. If a student has low grades, proactively offer study tips. Notify about relevant jobs/programs. Can draft CVs, cover letters, proposals, complaints, and application forms.`;
+}
+
+function detectIntent(m) {
+  m=m.toLowerCase();
+  if(['admit','apply','gpa','ssc','hsc','eligible','qualify','gap','scholarship','waiver'].some(w=>m.includes(w))) return 'admission';
+  if(['fee','cost','tuition','payment','due','account','receipt'].some(w=>m.includes(w))) return 'financial';
+  if(['job','career','cv','resume','intern','hire','placement'].some(w=>m.includes(w))) return 'career';
+  if(['hall','dorm','room','hostel','resident'].some(w=>m.includes(w))) return 'hall';
+  if(['event','program','fest','workshop','seminar','register'].some(w=>m.includes(w))) return 'events';
+  if(['lost','found','missing','item'].some(w=>m.includes(w))) return 'lost_found';
+  if(['complaint','proctor','discipline','bully','harass','report'].some(w=>m.includes(w))) return 'support';
+  if(['exchange','international','abroad','program','visa'].some(w=>m.includes(w))) return 'international';
+  return 'general';
+}
+
+function demoReply(msg) {
+  const m=msg.toLowerCase(), u=currentUser;
+  const gm=msg.match(/(\d+\.?\d*)\s*(?:and|&|,|\+|\/)\s*(\d+\.?\d*)/);
+  if(gm&&(m.includes('gpa')||m.includes('ssc')||m.includes('hsc')||m.includes('eligible')||m.includes('admit'))){
+    const ssc=parseFloat(gm[1]),hsc=parseFloat(gm[2]),c=ssc+hsc;
+    let path,w='';
+    if(c>=10){path='✅ **Direct Admission** — no test required!';w=ssc==5&&hsc==5?'\n💰 **100% tuition waiver** — Golden GPA!':'\n💰 50% waiver if your HSC GPA is 5.00.';}
+    else if(c>=9){path='📝 **Admission Test Required**';w='\n💰 50% waiver if HSC GPA is exactly 5.00.';}
+    else{path='📝 **Admission Test + Interview/Viva Required**';}
+    return `Based on SSC **${ssc}** + HSC **${hsc}** = **${c.toFixed(2)}** combined GPA:\n\n${path}${w}\n\nUse the **Eligibility Checker** in the sidebar for a full breakdown by department!`;
+  }
+  if(m.includes('my fee')||m.includes('fee due')||m.includes('payment')||m.includes('due')){
+    if(u?.role==='student') return `Your fee status, **${u.name.split(' ')[0]}**:\n\n• **Total Paid:** ৳${u.fees_paid?.toLocaleString()}\n• **Outstanding Dues:** ${u.fees_due===0?'✅ None — you\'re all clear!':'⚠️ ৳'+u.fees_due}\n• **Scholarship Applied:** ${u.scholarship||'None'}\n\nFor any payment issues, I can raise a ticket with the **Accounts Department** on your behalf. Want me to?`;
+    return `Please log in with your student account so I can check your personal fee details. If you need the general Accounts Department contact: **09617901212 x150** or **accounts@diu.edu.bd**.`;
+  }
+  if(m.includes('job')||m.includes('career')||m.includes('intern')||m.includes('hire')){
+    const matches=DIU.jobs.filter(j=>!u||!u.cgpa||j.cgpa_min<=u.cgpa);
+    return `💼 **Jobs matching your profile** (${matches.length} found):\n\n${matches.slice(0,3).map(j=>`• **${j.title}** at ${j.company} — ${j.type}, ${j.salary}\n  Deadline: ${j.deadline} | Min CGPA: ${j.cgpa_min} | Source: ${j.source}`).join('\n\n')}\n\nI can **apply for any of these on your behalf** — just tell me which one and I'll draft your cover letter and submit. Go to the **Jobs & Careers** section for all listings!`;
+  }
+  if(m.includes('exchange')||m.includes('abroad')||m.includes('international program')){
+    return `🌍 **Open Exchange Programs** (${DIU.exchanges.length} available):\n\n${DIU.exchanges.map(e=>`• **${e.univ}** (${e.country})\n  ${e.program} · ${e.duration} · Min CGPA ${e.cgpa_min} · **Deadline: ${e.deadline}**`).join('\n\n')}\n\nI can help you **prepare your application, write a statement of purpose**, and submit to International Affairs. Which program interests you?`;
+  }
+  if(m.includes('event')||m.includes('program')||m.includes('upcoming')||m.includes('fest')){
+    const upcoming=DIU.events.filter(e=>!e.registered);
+    return `📣 **Upcoming DIU Events** (${upcoming.length} you haven't registered for yet):\n\n${upcoming.slice(0,3).map(e=>`• **${e.title}** — ${e.date} at ${e.time}\n  📍 ${e.venue} | Type: ${e.type}`).join('\n\n')}\n\nI can **register you for any event automatically**. Go to the **Events & Programs** section. Also enable **Duke Smart Alerts** so I notify you about every relevant event!`;
+  }
+  if(m.includes('hall')||m.includes('dorm')||m.includes('hostel')||m.includes('room')){
+    return `🏠 **DIU Residential Halls**:\n\n• Hall A & B — Male students\n• Hall C & D — Female students\n• Hall E — Postgraduate/mixed\n\nAll halls are located in Daffodil Smart City, Ashulia.\n\n**For complaints or queries**, I can raise a ticket with Hall Administration on your behalf. What's the issue you're facing? I'll route it to the right person immediately.`;
+  }
+  if(m.includes('scholarship')||m.includes('waiver')||m.includes('discount')||m.includes('free tuition')){
+    return `🏅 **DIU Scholarship Categories** (25+ available):\n\n${Object.entries(DIU.scholarships).slice(0,5).map(([k,v])=>`• **${k}** — ${v}`).join('\n')}\n\nWant me to **check all scholarships you qualify for** based on your profile? Just say "check my scholarship eligibility" and Duke will give you a personalized breakdown and help you apply!`;
+  }
+  if(m.includes('lost')||m.includes('found')||m.includes('missing')){
+    const open=DIU.lostFound.filter(l=>l.status==='open');
+    return `🔍 **Lost & Found — ${open.length} active entries:**\n\n${open.slice(0,3).map(l=>`• ${l.icon} **${l.type}**: ${l.item}\n  📍 ${l.loc} · ${l.date}`).join('\n\n')}\n\nTo **report a lost or found item**, go to the **Lost & Found** section. Duke will notify campus officials and post it immediately.`;
+  }
+  if(m.includes('contact')||m.includes('proctor')||m.includes('who do i call')||m.includes('help me reach')){
+    return `📞 **Key DIU Contacts** — Duke can connect you instantly:\n\n${DIU.contacts.slice(0,4).map(c=>`• **${c.name}** (${c.role})\n  ${c.phone} · ${c.email}`).join('\n\n')}\n\nGo to **Key Contacts** in the sidebar to see all contacts with one-tap email/call. Or tell me what issue you're facing and Duke will route you to the right person.`;
+  }
+  if(m.includes('cgpa')||m.includes('grade')||m.includes('study')||m.includes('academic')||m.includes('improve')){
+    const cgpa=u?.cgpa;
+    if(cgpa&&cgpa<3.0) return `I see your CGPA is **${cgpa}** — let's work on improving it! Here's what I recommend:\n\n• **Attend all classes** — attendance affects internal marks\n• **Form study groups** with higher-performing peers in your department\n• **Visit the library** — DIU has 50,000+ books and digital resources\n• **Talk to your course teacher** — request extra guidance\n• **Use DIU's blended learning platform** for recorded lectures\n• Consider **dropping overloaded credits** next semester\n\nWould you like me to create a **personalized study plan** for your current courses?`;
+    return `📊 **Academic Support from Duke**:\n\nI can help you with:\n• Study plans and schedules\n• Course-specific resources\n• Connecting with tutors\n• Identifying weak areas\n• CV and career readiness planning\n\nWhat specific area do you need help with?`;
+  }
+  if(m.includes('cv')||m.includes('resume')||m.includes('cover letter')||m.includes('linkedin')){
+    return `✍️ **Duke can help with career documents:**\n\n• **CV/Resume** — professional, ATS-optimized for your field\n• **Cover Letter** — tailored to any specific job posting\n• **LinkedIn Bio** — stands out to recruiters\n• **Statement of Purpose** — for exchange/graduate programs\n• **Research Proposal** — for DIU research grants\n\nJust tell me: what position are you applying for, and I'll draft everything. Or say "write my CV" to start right now!`;
+  }
+  if(m.includes('complaint')||m.includes('report')||m.includes('harassment')||m.includes('bullying')){
+    return `📢 **Filing a Complaint via Duke:**\n\nDuke routes your complaint to the correct committee automatically:\n\n• **Academic issues** → Department Head / Dean\n• **Hall problems** → Hall Administration\n• **Ragging/Bullying** → Anti-Ragging Committee\n• **Harassment** → Proctor Office (confidential)\n• **Financial** → Accounts Department\n\nGo to **Complaints** in the sidebar to file formally. If this is urgent, contact the **Proctor directly: 09617901212 x201**.\n\nYour safety and wellbeing matter. Duke is here.`;
+  }
+  if(m.includes('department')||m.includes('program')||m.includes('course')){
+    const pop=Object.values(DIU.depts).filter(d=>d.popular);
+    return `🏫 DIU offers **${Object.keys(DIU.depts).length} departments** across 6 faculties:\n\n**Popular Programs:**\n${pop.map(d=>`• **${d.id}** — ${d.name}`).join('\n')}\n\nVisit the **Departments** section for fees, requirements, and career paths. Ask me to compare any two!`;
+  }
+  if(m.includes('fee')||m.includes('tuition')||m.includes('cost')){
+    const d=Object.values(DIU.depts).find(x=>m.includes(x.id.toLowerCase())||m.includes(x.name.toLowerCase().split(' ')[0]));
+    if(d) return `**${d.name} (${d.id})** fees:\n\n• **Total estimated fee:** ৳${d.fee.toLocaleString()}\n• **Duration:** ${d.years} years (${d.credits} credits)\n• **Per credit:** ≈৳${Math.round(d.fee/d.credits).toLocaleString()}\n\n💰 Scholarships can reduce this up to **100%** for Golden GPA holders!`;
+  }
+  return `👑 I'm **Duke**, the Digital Brain of Daffodil International University.\n\nI can help you with:\n• 🎓 Admissions & eligibility\n• 💳 Fee & accounts queries\n• 🏠 Hall / dorm issues\n• 📣 Events & programs\n• 💼 Jobs, careers & CV writing\n• 🌍 Exchange programs\n• 🔍 Lost & found\n• 📞 Key contacts & proctor\n• 🏅 Scholarships\n• 📢 Complaints & grievances\n• 📊 Academic support\n\nWhat can I help you with today?`;
+}
+
+// ── CHAT UI ──────────────────────────────────────────────
+function addMsg(role, text, intent) {
+  const area=document.getElementById('chatMsgs');
+  const div=document.createElement('div');
+  div.className='msg-row '+(role==='user'?'ur':'');
+  const av=role==='user'
+    ?`<div class="mav ua">${currentUser?.avatar||'👤'}</div>`
+    :`<div class="mav da">👑</div>`;
+  const itag=(role!=='user'&&intent&&intent!=='general')?`<span class="itag">${intent}</span><br>`:'';
+  const html=formatText(text);
+  const bub=`<div class="mb ${role==='user'?'ub':'db'}">${itag}${html}</div>`;
+  div.innerHTML=role==='user'?`${bub}${av}`:`${av}${bub}`;
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+function addTyping(){
+  const area=document.getElementById('chatMsgs');
+  const id='t_'+Date.now();const div=document.createElement('div');
+  div.className='msg-row';div.id=id;
+  div.innerHTML=`<div class="mav da">👑</div><div class="mb db"><div class="tdots"><span class="td"></span><span class="td"></span><span class="td"></span></div></div>`;
+  area.appendChild(div);area.scrollTop=area.scrollHeight;return id;
+}
+function removeTyping(id){document.getElementById(id)?.remove();}
+function formatText(t){
+  return t
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/\n\n/g,'</p><p style="margin-top:8px">')
+    .replace(/\n/g,'<br>')
+    .replace(/^/,'<p>').replace(/$/,'</p>');
+}
+
+// ── Boot ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const inp=document.getElementById('chatInput');
+  if(inp) inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,140)+'px';});
+  document.getElementById('loginEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+});
+</script>
+</body>
+</html>
